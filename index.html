@@ -5199,130 +5199,101 @@ function handleKeyboard(e) {
 }
 
 // ════════════════════════════════════════
-// FIREBASE FIRESTORE SYNC
+// FIREBASE FIRESTORE SYNC  (v2 — fixed)
 // ════════════════════════════════════════
 
 const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyDUAe7phQQ7r3e0VZSBRAUTaMW7FRuTas0",
-  authDomain: "shada-task.firebaseapp.com",
-  projectId: "shada-task",
-  storageBucket: "shada-task.firebasestorage.app",
+  apiKey:            "AIzaSyDUAe7phQQ7r3e0VZSBRAUTaMW7FRuTas0",
+  authDomain:        "shada-task.firebaseapp.com",
+  projectId:         "shada-task",
+  storageBucket:     "shada-task.firebasestorage.app",
   messagingSenderId: "949016441470",
-  appId: "1:949016441470:web:4781420309058986215e2f"
+  appId:             "1:949016441470:web:4781420309058986215e2f"
 };
 
-// Unique device ID — prevents looping on own writes
+// Stable device ID — used to skip our own writes in onSnapshot
 const DEVICE_ID = (() => {
   let id = localStorage.getItem('tm_device_id');
   if (!id) {
-    id = 'dev-' + Date.now() + '-' + Math.random().toString(36).slice(2,8);
+    id = 'dev-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
     localStorage.setItem('tm_device_id', id);
   }
   return id;
 })();
 
-let db            = null;
-let fsReady       = false;
-let fsWriting     = 0;   // pending write counter
-let applyingRemote = false; // prevents save → listener loop
+const FS_KEYS = ['tasks','subcats','sessions','deadlines','clients','cases','templates'];
 
-// ── Initialize ────────────────────────────
-(function initFirebase() {
-  try {
-    if (typeof firebase === 'undefined') throw new Error('Firebase SDK not loaded');
-    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
-    db = firebase.firestore();
-    // Enable offline persistence (data available without internet)
-    db.enablePersistence({ synchronizeTabs: true }).catch(err => {
-      if (err.code === 'failed-precondition') console.warn('[FS] Multiple tabs — offline persistence disabled');
-      else if (err.code === 'unimplemented') console.warn('[FS] Browser does not support IndexedDB');
-    });
-  } catch(e) {
-    console.warn('[FS] Firebase init failed:', e.message);
-    setSyncStatus('error');
-  }
-})();
+let db             = null;   // Firestore instance
+let applyingRemote = false;  // true while applying data from Firestore
+let fsPending      = 0;      // count of in-flight writes
 
-// ── Sync Status UI ────────────────────────
-function setSyncStatus(status) {
+// ── Sync Status ────────────────────────────
+function setSyncStatus(status, detail) {
   const dot = document.getElementById('sync-dot');
   const txt = document.getElementById('sync-text');
   if (!dot || !txt) return;
-  const states = {
-    init:    { c:'var(--txm)', t:'جارٍ الاتصال...', spin:true  },
-    syncing: { c:'var(--warn)',t:'مزامنة...',         spin:true  },
-    synced:  { c:'var(--ok)', t:'مزامن ☁️',          spin:false },
-    offline: { c:'var(--err)', t:'غير متصل 📴',       spin:false },
-    error:   { c:'var(--err)', t:'خطأ Firebase',      spin:false },
+  const M = {
+    init:    ['var(--txm)', 'جارٍ الاتصال...', true ],
+    syncing: ['var(--warn)','مزامنة...',        true ],
+    synced:  ['var(--ok)', 'مزامن ☁️',         false],
+    offline: ['var(--err)', 'غير متصل 📴',      false],
+    error:   ['var(--err)', detail||'خطأ Firebase', false],
   };
-  const s = states[status] || states.init;
-  dot.style.background = s.c;
-  dot.classList.toggle('syncing', s.spin);
-  txt.textContent = s.t;
+  const [c, t, spin] = M[status] || M.error;
+  dot.style.background = c;
+  dot.classList.toggle('syncing', !!spin);
+  txt.textContent = t;
 }
 
-// ── Save to Firestore ─────────────────────
-function fsDoc(key) {
-  return db.collection('app').doc(key);
-}
-
-function fsClean(data) {
-  // Remove undefined / non-serializable values
-  return JSON.parse(JSON.stringify(data ?? []));
-}
-
+// ── Write to Firestore ─────────────────────
 async function fsSave(key, data) {
-  if (!db || applyingRemote) return;
-  fsWriting++;
+  if (!db || applyingRemote) return;     // skip if Firebase not ready or echoing remote
+  fsPending++;
   setSyncStatus('syncing');
   try {
-    await fsDoc(key).set({
-      data:     fsClean(data),
+    // Clean: remove undefined values that Firestore rejects
+    const clean = JSON.parse(JSON.stringify(data ?? []));
+    await db.collection('app').doc(key).set({
+      data:     clean,
       deviceId: DEVICE_ID,
-      ts:       firebase.firestore.FieldValue.serverTimestamp()
+      savedAt:  Date.now()
     });
-  } catch(e) {
-    console.warn('[FS] Save error:', key, e.code);
+  } catch (e) {
+    console.error('[FS] fsSave error →', key, ':', e.code || e.message);
     setSyncStatus('offline');
   } finally {
-    fsWriting = Math.max(0, fsWriting - 1);
-    if (fsWriting === 0) setSyncStatus('synced');
+    fsPending = Math.max(0, fsPending - 1);
+    if (fsPending === 0) setSyncStatus('synced');
   }
 }
 
-// ── Apply remote data from Firestore ──────
-function applyRemote(key, data, withToast) {
+// ── Apply Firestore data locally ───────────
+// Only updates memory + localStorage. Caller handles re-render.
+function applyLocal(key, data) {
   if (!data) return;
   applyingRemote = true;
   try {
-    switch(key) {
+    switch (key) {
       case 'tasks':
         tasks = data;
         localStorage.setItem('tm_tasks', JSON.stringify(tasks));
         migrateTasks();
-        render(); renderDashboard();
         break;
       case 'subcats':
         subcats = data;
         localStorage.setItem('tm_subcats', JSON.stringify(subcats));
-        render();
         break;
       case 'sessions':
         sessions = data;
         localStorage.setItem('tm_sessions', JSON.stringify(sessions));
-        updateSessCount();
-        if (curView === 'sessions') renderSessions();
         break;
       case 'deadlines':
         deadlines = data;
         localStorage.setItem('tm_deadlines', JSON.stringify(deadlines));
-        if (curView === 'deadlines') renderDeadlines();
         break;
       case 'clients':
         clients = data;
         localStorage.setItem('tm_clients', JSON.stringify(clients));
-        updateClientsCount();
-        if (curView === 'clients') renderClients();
         break;
       case 'cases':
         cases = data;
@@ -5331,89 +5302,141 @@ function applyRemote(key, data, withToast) {
       case 'templates':
         templates = data;
         localStorage.setItem('tm_tpls', JSON.stringify(templates));
-        if (curView === 'templates') renderTemplates();
         break;
     }
-    updateCounts();
-    if (curView === 'dashboard') renderDashboard();
   } finally {
     applyingRemote = false;
   }
-  if (withToast) toast('🔄 تحديث من جهاز آخر');
 }
 
-// ── Load all data from Firestore on start ─
-const FS_KEYS = ['tasks','subcats','sessions','deadlines','clients','cases','templates'];
-
-async function loadAllFromFirestore() {
-  if (!db) return;
-  setSyncStatus('init');
-  try {
-    const snapshots = await Promise.all(FS_KEYS.map(k => fsDoc(k).get()));
-    let anyLoaded = false;
-    snapshots.forEach((snap, i) => {
-      const key = FS_KEYS[i];
-      if (!snap.exists || !snap.data()?.data) return;
-      applyRemote(key, snap.data().data, false);
-      anyLoaded = true;
-    });
-    setSyncStatus('synced');
-    if (anyLoaded) console.log('[FS] Loaded from Firestore');
-  } catch(e) {
-    console.warn('[FS] Load failed (may be offline):', e.code);
-    setSyncStatus('offline');
+// ── Re-render after remote update ──────────
+function reRenderAfterSync(key) {
+  updateCounts();
+  updateSessCount();
+  updateClientsCount();
+  switch (key) {
+    case 'tasks':
+    case 'subcats':
+      render();
+      break;
+    case 'sessions':
+      if (curView === 'sessions') renderSessions();
+      break;
+    case 'deadlines':
+      if (curView === 'deadlines') renderDeadlines();
+      break;
+    case 'clients':
+      if (curView === 'clients') renderClients();
+      break;
+    case 'cases':
+      // cases are shown inside client detail modal — no standalone view
+      break;
+    case 'templates':
+      if (curView === 'templates') renderTemplates();
+      break;
   }
+  if (curView === 'dashboard') renderDashboard();
 }
 
-// ── Real-time listeners ───────────────────
-function setupFsListeners() {
-  if (!db) return;
-  FS_KEYS.forEach(key => {
-    fsDoc(key).onSnapshot(
-      snap => {
-        if (!snap.exists || !snap.data()?.data) return;
-        // Ignore if this write came from this device
-        if (snap.data().deviceId === DEVICE_ID) return;
-        console.log('[FS] Remote update:', key);
-        applyRemote(key, snap.data().data, true);
-      },
-      err => {
-        if (err.code === 'unavailable') setSyncStatus('offline');
-        else console.warn('[FS] Listener error:', key, err.code);
+// ── Load all data from Firestore ───────────
+async function loadAllFromFirestore() {
+  setSyncStatus('init');
+  let loaded = 0;
+  for (const key of FS_KEYS) {
+    try {
+      const snap = await db.collection('app').doc(key).get();
+      if (snap.exists && snap.data()?.data != null) {
+        applyLocal(key, snap.data().data);
+        loaded++;
+        console.log('[FS] Loaded:', key);
       }
-    );
-  });
-
-  // Connectivity tracking
-  db.collection('app').doc('_ping').onSnapshot(
-    () => { if (fsWriting === 0) setSyncStatus('synced'); },
-    () => setSyncStatus('offline')
-  );
+    } catch (e) {
+      console.warn('[FS] Load failed:', key, e.code || e.message);
+    }
+  }
+  if (loaded > 0) {
+    // Single re-render after all data is applied
+    render();
+    updateCounts(); updateSessCount(); updateClientsCount();
+    if (curView === 'dashboard') renderDashboard();
+    console.log(`[FS] Loaded ${loaded}/${FS_KEYS.length} collections from Firestore`);
+  }
+  setSyncStatus('synced');
 }
 
-// ── Force push all data to Firestore ──────
+// ── Real-time listeners ────────────────────
+function setupFsListeners() {
+  FS_KEYS.forEach(key => {
+    db.collection('app').doc(key).onSnapshot(snap => {
+      if (!snap.exists || !snap.data()) return;
+      const d = snap.data();
+      if (!d.data) return;
+      // Skip writes that originated from THIS device
+      if (d.deviceId === DEVICE_ID) return;
+      console.log('[FS] Remote update →', key, 'from device:', d.deviceId?.slice(0, 12));
+      applyLocal(key, d.data);
+      reRenderAfterSync(key);
+      toast('🔄 تحديث من جهاز آخر');
+      setSyncStatus('synced');
+    }, err => {
+      console.error('[FS] Listener error →', key, ':', err.code || err.message);
+      if (err.code === 'permission-denied') {
+        setSyncStatus('error', 'تحقق من Firestore Rules');
+      } else {
+        setSyncStatus('offline');
+      }
+    });
+  });
+}
+
+// ── Force push all local data ──────────────
 async function fsPushAll() {
   if (!db) { toast('⚠️ Firebase غير متصل'); return; }
-  setSyncStatus('syncing');
-  toast('☁️ جارٍ رفع البيانات...');
-  await Promise.all([
-    fsSave('tasks',     tasks),
-    fsSave('subcats',   subcats),
-    fsSave('sessions',  sessions),
-    fsSave('deadlines', deadlines),
-    fsSave('clients',   clients),
-    fsSave('cases',     cases),
-    fsSave('templates', templates),
-  ]);
-  toast('✅ تم رفع كل البيانات لـ Firebase');
+  toast('☁️ جارٍ رفع كل البيانات...');
+  const map = { tasks, subcats, sessions, deadlines, clients, cases, templates };
+  for (const key of FS_KEYS) {
+    await fsSave(key, map[key]);
+  }
+  toast('✅ رُفعت كل البيانات لـ Firebase');
 }
 
-// ── Main Firestore init (called from init()) ──
+// ── Main init (called from app init()) ─────
 async function initFirestore() {
-  if (!db) { setSyncStatus('offline'); return; }
-  await loadAllFromFirestore();
-  setupFsListeners();
-  fsReady = true;
+  try {
+    // 1. Check SDK loaded
+    if (typeof firebase === 'undefined') {
+      throw new Error('Firebase SDK لم يُحمَّل — تحقق من اتصال الإنترنت');
+    }
+
+    // 2. Initialize Firebase app (once)
+    if (!firebase.apps.length) {
+      firebase.initializeApp(FIREBASE_CONFIG);
+    }
+    db = firebase.firestore();
+
+    // 3. Enable offline persistence
+    try {
+      await db.enablePersistence({ synchronizeTabs: true });
+      console.log('[FS] Offline persistence enabled');
+    } catch (err) {
+      // Non-fatal: offline still works via Firebase cache
+      console.warn('[FS] Persistence limited:', err.code);
+    }
+
+    // 4. Load existing data from Firestore
+    await loadAllFromFirestore();
+
+    // 5. Setup real-time listeners for live sync
+    setupFsListeners();
+
+    console.log('[FS] ✅ Firebase ready | device:', DEVICE_ID);
+    setSyncStatus('synced');
+
+  } catch (e) {
+    console.error('[FS] ❌ initFirestore failed:', e.message || e);
+    setSyncStatus('error', String(e.message || e).slice(0, 40));
+    db = null; // ensure fsSave returns early if Firebase failed
+  }
 }
 
 // ════════════════════════════════════════
