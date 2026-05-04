@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>مدير المهام</title>
-<!-- Firebase SDK (compat) -->
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+<!-- Firebase SDK v9 (compat build — works as regular script, no bundler needed) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <link id="gfonts" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&family=Cairo:wght@300;400;600;700;800&family=Almarai:wght@300;400;700;800&family=IBM+Plex+Sans+Arabic:wght@300;400;600;700&family=Noto+Kufi+Arabic:wght@300;400;700&family=Amiri:wght@400;700&family=El+Messiri:wght@400;600;700&family=Reem+Kufi:wght@400;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -5199,7 +5199,7 @@ function handleKeyboard(e) {
 }
 
 // ════════════════════════════════════════
-// FIREBASE FIRESTORE SYNC  (v2 — fixed)
+// FIREBASE FIRESTORE  (v9 compat CDN)
 // ════════════════════════════════════════
 
 const FIREBASE_CONFIG = {
@@ -5211,278 +5211,185 @@ const FIREBASE_CONFIG = {
   appId:             "1:949016441470:web:4781420309058986215e2f"
 };
 
-// Stable device ID — used to skip our own writes in onSnapshot
+// Unique device ID — prevents our own writes from triggering the listener
 const DEVICE_ID = (() => {
   let id = localStorage.getItem('tm_device_id');
   if (!id) {
-    id = 'dev-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    id = 'dev_' + Math.random().toString(36).slice(2, 10);
     localStorage.setItem('tm_device_id', id);
   }
   return id;
 })();
 
-const FS_KEYS = ['tasks','subcats','sessions','deadlines','clients','cases','templates'];
+// ─── State ───────────────────────────────────
+const FS_KEYS      = ['tasks','subcats','sessions','deadlines','clients','cases','templates'];
+let   db           = null;    // Firestore instance (null until connected)
+let   applyRemote  = false;   // true while writing remote data locally (blocks fsSave)
 
-let db             = null;   // Firestore instance
-let applyingRemote = false;  // true while applying data from Firestore
-let fsPending      = 0;      // count of in-flight writes
-const fsSaveQueue  = [];     // saves queued before Firebase is ready
-
-// ── Sync Status ────────────────────────────
-function setSyncStatus(status, detail) {
+// ─── Sync indicator ──────────────────────────
+function setSyncStatus(status, msg) {
   const dot = document.getElementById('sync-dot');
   const txt = document.getElementById('sync-text');
   if (!dot || !txt) return;
-  const M = {
-    init:    ['var(--txm)', 'جارٍ الاتصال...', true ],
-    syncing: ['var(--warn)','مزامنة...',        true ],
-    synced:  ['var(--ok)', 'مزامن ☁️',         false],
-    offline: ['var(--err)', 'غير متصل 📴',      false],
-    error:   ['var(--err)', detail||'خطأ Firebase', false],
+  const S = {
+    connecting: { c:'#F59E0B', t:'جارٍ الاتصال...', p:true  },
+    syncing:    { c:'#3B82F6', t:'مزامنة...',        p:true  },
+    synced:     { c:'#10B981', t:'مزامن ☁️',         p:false },
+    offline:    { c:'#EF4444', t:'غير متصل 📴',       p:false },
+    error:      { c:'#EF4444', t:msg||'خطأ Firebase', p:false },
   };
-  const [c, t, spin] = M[status] || M.error;
-  dot.style.background = c;
-  dot.classList.toggle('syncing', !!spin);
-  txt.textContent = t;
+  const s = S[status] || S.error;
+  dot.style.background = s.c;
+  dot.classList.toggle('syncing', s.p);
+  txt.textContent = s.t;
 }
 
-// ── Write to Firestore ─────────────────────
+// ─── Write one collection to Firestore ───────
 async function fsSave(key, data) {
-  if (applyingRemote) return;  // never echo remote data back
-  if (!db) {
-    // Firebase not ready yet — queue for later
-    fsSaveQueue.push({ key, data: JSON.parse(JSON.stringify(data ?? [])) });
-    return;
-  }
-  fsPending++;
+  if (!db || applyRemote) return;
   setSyncStatus('syncing');
   try {
     const clean = JSON.parse(JSON.stringify(data ?? []));
     await db.collection('app').doc(key).set({
       data:     clean,
       deviceId: DEVICE_ID,
-      savedAt:  Date.now()
+      ts:       Date.now()
     });
+    setSyncStatus('synced');
   } catch (e) {
-    console.error('[FS] fsSave error →', key, ':', e.code || e.message);
-    if (e.code === 'permission-denied') {
-      setSyncStatus('error', 'Firestore Rules مرفوضة — عدّل القواعد');
-    } else {
-      setSyncStatus('offline');
-    }
-  } finally {
-    fsPending = Math.max(0, fsPending - 1);
-    if (fsPending === 0 && db) setSyncStatus('synced');
+    console.error('[FS] save failed:', key, e.code, e.message);
+    setSyncStatus(
+      e.code === 'permission-denied' ? 'error' : 'offline',
+      e.code === 'permission-denied' ? 'Rules مرفوضة — عدّل قواعد Firestore' : undefined
+    );
   }
 }
 
-// Drain queued saves after Firebase becomes ready
-async function drainSaveQueue() {
-  const q = [...fsSaveQueue];
-  fsSaveQueue.length = 0;
-  for (const { key, data } of q) {
-    await fsSave(key, data);
-  }
-  if (q.length) console.log(`[FS] Drained ${q.length} queued saves`);
+// ─── Write ALL collections at once ───────────
+async function fsPushAll() {
+  if (!db) { toast('⚠️ Firebase غير متصل'); return; }
+  toast('☁️ جارٍ رفع كل البيانات...');
+  const all = { tasks, subcats, sessions, deadlines, clients, cases, templates };
+  for (const key of FS_KEYS) await fsSave(key, all[key]);
+  toast('✅ رُفعت كل البيانات لـ Firebase');
 }
 
-// Quick connection test — write then delete a test doc
-async function fsConnectionTest() {
-  try {
-    const ref = db.collection('app').doc('_conntest');
-    await ref.set({ ping: Date.now(), deviceId: DEVICE_ID });
-    await ref.delete();
-    return true;
-  } catch (e) {
-    return { error: e.code, message: e.message };
-  }
-}
-
-// ── Apply Firestore data locally ───────────
-// Only updates memory + localStorage. Caller handles re-render.
-function applyLocal(key, data) {
-  if (!data) return;
-  applyingRemote = true;
+// ─── Apply Firestore data into memory + localStorage ─
+function fsApplyLocal(key, data) {
+  if (data == null) return;
+  applyRemote = true;
   try {
     switch (key) {
-      case 'tasks':
-        tasks = data;
-        localStorage.setItem('tm_tasks', JSON.stringify(tasks));
-        migrateTasks();
-        break;
-      case 'subcats':
-        subcats = data;
-        localStorage.setItem('tm_subcats', JSON.stringify(subcats));
-        break;
-      case 'sessions':
-        sessions = data;
-        localStorage.setItem('tm_sessions', JSON.stringify(sessions));
-        break;
-      case 'deadlines':
-        deadlines = data;
-        localStorage.setItem('tm_deadlines', JSON.stringify(deadlines));
-        break;
-      case 'clients':
-        clients = data;
-        localStorage.setItem('tm_clients', JSON.stringify(clients));
-        break;
-      case 'cases':
-        cases = data;
-        localStorage.setItem('tm_cases', JSON.stringify(cases));
-        break;
-      case 'templates':
-        templates = data;
-        localStorage.setItem('tm_tpls', JSON.stringify(templates));
-        break;
+      case 'tasks':     tasks     = data; localStorage.setItem('tm_tasks',     JSON.stringify(data)); migrateTasks(); break;
+      case 'subcats':   subcats   = data; localStorage.setItem('tm_subcats',   JSON.stringify(data)); break;
+      case 'sessions':  sessions  = data; localStorage.setItem('tm_sessions',  JSON.stringify(data)); break;
+      case 'deadlines': deadlines = data; localStorage.setItem('tm_deadlines', JSON.stringify(data)); break;
+      case 'clients':   clients   = data; localStorage.setItem('tm_clients',   JSON.stringify(data)); break;
+      case 'cases':     cases     = data; localStorage.setItem('tm_cases',     JSON.stringify(data)); break;
+      case 'templates': templates = data; localStorage.setItem('tm_tpls',      JSON.stringify(data)); break;
     }
   } finally {
-    applyingRemote = false;
+    applyRemote = false;
   }
 }
 
-// ── Re-render after remote update ──────────
-function reRenderAfterSync(key) {
-  updateCounts();
-  updateSessCount();
-  updateClientsCount();
-  switch (key) {
-    case 'tasks':
-    case 'subcats':
-      render();
-      break;
-    case 'sessions':
-      if (curView === 'sessions') renderSessions();
-      break;
-    case 'deadlines':
-      if (curView === 'deadlines') renderDeadlines();
-      break;
-    case 'clients':
-      if (curView === 'clients') renderClients();
-      break;
-    case 'cases':
-      // cases are shown inside client detail modal — no standalone view
-      break;
-    case 'templates':
-      if (curView === 'templates') renderTemplates();
-      break;
-  }
+// ─── Re-render UI after sync ──────────────────
+function fsRefreshUI(key) {
+  updateCounts(); updateSessCount(); updateClientsCount();
+  if (['tasks','subcats'].includes(key))              render();
+  if (key === 'sessions'  && curView === 'sessions')  renderSessions();
+  if (key === 'deadlines' && curView === 'deadlines') renderDeadlines();
+  if (key === 'clients'   && curView === 'clients')   renderClients();
+  if (key === 'templates' && curView === 'templates') renderTemplates();
   if (curView === 'dashboard') renderDashboard();
 }
 
-// ── Load all data from Firestore ───────────
-async function loadAllFromFirestore() {
-  setSyncStatus('init');
-  let loaded = 0;
+// ─── Main Firebase init (called from app init()) ─
+async function initFirestore() {
+  // Step 1 — verify SDK is loaded
+  if (typeof firebase === 'undefined') {
+    console.error('[FS] Firebase SDK not loaded from CDN');
+    setSyncStatus('error', 'Firebase SDK لم يُحمَّل');
+    return;
+  }
+
+  // Step 2 — initialize app + Firestore
+  try {
+    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.firestore();
+  } catch (e) {
+    console.error('[FS] firebase.initializeApp failed:', e.message);
+    setSyncStatus('error', e.message.slice(0, 40));
+    return;
+  }
+
+  // Step 3 — test connection with a real write/delete
+  setSyncStatus('connecting');
+  try {
+    const testRef = db.collection('app').doc('_conn_test');
+    await testRef.set({ ok: true, ts: Date.now() });
+    await testRef.delete();
+    console.log('[FS] ✅ Connection OK');
+  } catch (e) {
+    console.error('[FS] Connection test failed:', e.code, e.message);
+    if (e.code === 'permission-denied') {
+      setSyncStatus('error', 'Rules مرفوضة — افتح Firebase Console وعدّل القواعد');
+      toast('⚠️ Firestore Rules مرفوضة — اذهب لـ Firebase Console → Firestore → Rules');
+    } else {
+      setSyncStatus('offline');
+      toast('⚠️ Firebase: ' + (e.code || e.message));
+    }
+    db = null;
+    return;
+  }
+
+  // Step 4 — load all collections from Firestore
+  let loadedCount = 0;
   for (const key of FS_KEYS) {
     try {
       const snap = await db.collection('app').doc(key).get();
       if (snap.exists && snap.data()?.data != null) {
-        applyLocal(key, snap.data().data);
-        loaded++;
-        console.log('[FS] Loaded:', key);
+        fsApplyLocal(key, snap.data().data);
+        loadedCount++;
+        console.log('[FS] loaded:', key, Array.isArray(snap.data().data) ? '(' + snap.data().data.length + ' items)' : '');
       }
     } catch (e) {
-      console.warn('[FS] Load failed:', key, e.code || e.message);
+      console.warn('[FS] load failed:', key, e.code);
     }
   }
-  if (loaded > 0) {
-    // Single re-render after all data is applied
+
+  // Step 5 — re-render UI with loaded data
+  if (loadedCount > 0) {
     render();
     updateCounts(); updateSessCount(); updateClientsCount();
     if (curView === 'dashboard') renderDashboard();
-    console.log(`[FS] Loaded ${loaded}/${FS_KEYS.length} collections from Firestore`);
+    console.log('[FS] loaded', loadedCount, '/', FS_KEYS.length, 'collections');
   }
-  setSyncStatus('synced');
-}
 
-// ── Real-time listeners ────────────────────
-function setupFsListeners() {
-  FS_KEYS.forEach(key => {
-    db.collection('app').doc(key).onSnapshot(snap => {
-      if (!snap.exists || !snap.data()) return;
-      const d = snap.data();
-      if (!d.data) return;
-      // Skip if this write came from THIS device (prevent echo)
-      if (d.deviceId === DEVICE_ID) return;
-      console.log('[FS] Remote update →', key);
-      applyLocal(key, d.data);
-      reRenderAfterSync(key);
-      toast('🔄 تحديث من جهاز آخر');
-      setSyncStatus('synced');
-    }, err => {
-      console.error('[FS] Listener error →', key, ':', err.code || err.message);
-      if (err.code === 'permission-denied') {
-        setSyncStatus('error', 'Firestore Rules مرفوضة — عدّل القواعد في Firebase Console');
-      } else if (err.code === 'unavailable') {
-        setSyncStatus('offline');
-      } else {
-        setSyncStatus('error', err.code || 'خطأ غير معروف');
-      }
-    });
-  });
-}
-
-// ── Force push all local data ──────────────
-async function fsPushAll() {
-  if (!db) { toast('⚠️ Firebase غير متصل'); return; }
-  toast('☁️ جارٍ رفع كل البيانات...');
-  const map = { tasks, subcats, sessions, deadlines, clients, cases, templates };
+  // Step 6 — real-time listeners for live sync across devices
   for (const key of FS_KEYS) {
-    await fsSave(key, map[key]);
+    db.collection('app').doc(key).onSnapshot(
+      snap => {
+        if (!snap.exists || !snap.data()?.data) return;
+        if (snap.data().deviceId === DEVICE_ID) return; // skip our own writes
+        console.log('[FS] remote update:', key);
+        fsApplyLocal(key, snap.data().data);
+        fsRefreshUI(key);
+        toast('🔄 تحديث من جهاز آخر');
+        setSyncStatus('synced');
+      },
+      err => {
+        console.error('[FS] listener error:', key, err.code, err.message);
+        setSyncStatus(
+          err.code === 'permission-denied' ? 'error' : 'offline',
+          err.code === 'permission-denied' ? 'Rules مرفوضة' : undefined
+        );
+      }
+    );
   }
-  toast('✅ رُفعت كل البيانات لـ Firebase');
-}
 
-// ── Main init (called from app init()) ─────
-async function initFirestore() {
-  try {
-    // 1. Check SDK loaded
-    if (typeof firebase === 'undefined') {
-      throw new Error('Firebase SDK لم يُحمَّل — تحقق من اتصال الإنترنت');
-    }
-
-    // 2. Initialize Firebase app (once)
-    if (!firebase.apps.length) {
-      firebase.initializeApp(FIREBASE_CONFIG);
-    }
-    db = firebase.firestore();
-
-    // 3. Offline persistence — fire-and-forget (never block on this)
-    //    Fails silently in file:// context and multi-tab — that's OK
-    db.enablePersistence().catch(e => console.warn('[FS] Persistence:', e.code));
-
-    // 4. Connection test: write + delete a test document
-    setSyncStatus('init');
-    const test = await fsConnectionTest();
-    if (test !== true) {
-      const reason = test.error === 'permission-denied'
-        ? 'Firestore Rules مرفوضة — افتح Firebase Console → Firestore → Rules وضع: allow read, write: if true'
-        : (test.error || 'خطأ في الاتصال');
-      console.error('[FS] Connection test failed:', test.error, test.message);
-      setSyncStatus('error', reason);
-      toast('⚠️ Firebase: ' + (test.error === 'permission-denied' ? 'Rules مرفوضة' : test.error));
-      db = null;
-      return;
-    }
-    console.log('[FS] Connection test ✅ passed');
-
-    // 5. Load existing data from Firestore → updates memory + localStorage
-    await loadAllFromFirestore();
-
-    // 6. Setup real-time listeners for cross-device sync
-    setupFsListeners();
-
-    // 7. Drain any saves that queued while Firebase was initializing
-    await drainSaveQueue();
-
-    setSyncStatus('synced');
-    console.log('[FS] ✅ Firebase ready | device:', DEVICE_ID);
-
-  } catch (e) {
-    console.error('[FS] ❌ initFirestore failed:', e.message || e);
-    setSyncStatus('error', String(e.message || e).slice(0, 50));
-    db = null;
-  }
+  setSyncStatus('synced');
+  console.log('[FS] ✅ Firebase ready | device:', DEVICE_ID);
 }
 
 // ════════════════════════════════════════
