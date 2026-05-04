@@ -5226,6 +5226,7 @@ const FS_KEYS = ['tasks','subcats','sessions','deadlines','clients','cases','tem
 let db             = null;   // Firestore instance
 let applyingRemote = false;  // true while applying data from Firestore
 let fsPending      = 0;      // count of in-flight writes
+const fsSaveQueue  = [];     // saves queued before Firebase is ready
 
 // ── Sync Status ────────────────────────────
 function setSyncStatus(status, detail) {
@@ -5247,11 +5248,15 @@ function setSyncStatus(status, detail) {
 
 // ── Write to Firestore ─────────────────────
 async function fsSave(key, data) {
-  if (!db || applyingRemote) return;     // skip if Firebase not ready or echoing remote
+  if (applyingRemote) return;  // never echo remote data back
+  if (!db) {
+    // Firebase not ready yet — queue for later
+    fsSaveQueue.push({ key, data: JSON.parse(JSON.stringify(data ?? [])) });
+    return;
+  }
   fsPending++;
   setSyncStatus('syncing');
   try {
-    // Clean: remove undefined values that Firestore rejects
     const clean = JSON.parse(JSON.stringify(data ?? []));
     await db.collection('app').doc(key).set({
       data:     clean,
@@ -5260,10 +5265,36 @@ async function fsSave(key, data) {
     });
   } catch (e) {
     console.error('[FS] fsSave error →', key, ':', e.code || e.message);
-    setSyncStatus('offline');
+    if (e.code === 'permission-denied') {
+      setSyncStatus('error', 'Firestore Rules مرفوضة — عدّل القواعد');
+    } else {
+      setSyncStatus('offline');
+    }
   } finally {
     fsPending = Math.max(0, fsPending - 1);
-    if (fsPending === 0) setSyncStatus('synced');
+    if (fsPending === 0 && db) setSyncStatus('synced');
+  }
+}
+
+// Drain queued saves after Firebase becomes ready
+async function drainSaveQueue() {
+  const q = [...fsSaveQueue];
+  fsSaveQueue.length = 0;
+  for (const { key, data } of q) {
+    await fsSave(key, data);
+  }
+  if (q.length) console.log(`[FS] Drained ${q.length} queued saves`);
+}
+
+// Quick connection test — write then delete a test doc
+async function fsConnectionTest() {
+  try {
+    const ref = db.collection('app').doc('_conntest');
+    await ref.set({ ping: Date.now(), deviceId: DEVICE_ID });
+    await ref.delete();
+    return true;
+  } catch (e) {
+    return { error: e.code, message: e.message };
   }
 }
 
@@ -5371,9 +5402,9 @@ function setupFsListeners() {
       if (!snap.exists || !snap.data()) return;
       const d = snap.data();
       if (!d.data) return;
-      // Skip writes that originated from THIS device
+      // Skip if this write came from THIS device (prevent echo)
       if (d.deviceId === DEVICE_ID) return;
-      console.log('[FS] Remote update →', key, 'from device:', d.deviceId?.slice(0, 12));
+      console.log('[FS] Remote update →', key);
       applyLocal(key, d.data);
       reRenderAfterSync(key);
       toast('🔄 تحديث من جهاز آخر');
@@ -5381,9 +5412,11 @@ function setupFsListeners() {
     }, err => {
       console.error('[FS] Listener error →', key, ':', err.code || err.message);
       if (err.code === 'permission-denied') {
-        setSyncStatus('error', 'تحقق من Firestore Rules');
-      } else {
+        setSyncStatus('error', 'Firestore Rules مرفوضة — عدّل القواعد في Firebase Console');
+      } else if (err.code === 'unavailable') {
         setSyncStatus('offline');
+      } else {
+        setSyncStatus('error', err.code || 'خطأ غير معروف');
       }
     });
   });
@@ -5414,28 +5447,41 @@ async function initFirestore() {
     }
     db = firebase.firestore();
 
-    // 3. Enable offline persistence
-    try {
-      await db.enablePersistence({ synchronizeTabs: true });
-      console.log('[FS] Offline persistence enabled');
-    } catch (err) {
-      // Non-fatal: offline still works via Firebase cache
-      console.warn('[FS] Persistence limited:', err.code);
-    }
+    // 3. Offline persistence — fire-and-forget (never block on this)
+    //    Fails silently in file:// context and multi-tab — that's OK
+    db.enablePersistence().catch(e => console.warn('[FS] Persistence:', e.code));
 
-    // 4. Load existing data from Firestore
+    // 4. Connection test: write + delete a test document
+    setSyncStatus('init');
+    const test = await fsConnectionTest();
+    if (test !== true) {
+      const reason = test.error === 'permission-denied'
+        ? 'Firestore Rules مرفوضة — افتح Firebase Console → Firestore → Rules وضع: allow read, write: if true'
+        : (test.error || 'خطأ في الاتصال');
+      console.error('[FS] Connection test failed:', test.error, test.message);
+      setSyncStatus('error', reason);
+      toast('⚠️ Firebase: ' + (test.error === 'permission-denied' ? 'Rules مرفوضة' : test.error));
+      db = null;
+      return;
+    }
+    console.log('[FS] Connection test ✅ passed');
+
+    // 5. Load existing data from Firestore → updates memory + localStorage
     await loadAllFromFirestore();
 
-    // 5. Setup real-time listeners for live sync
+    // 6. Setup real-time listeners for cross-device sync
     setupFsListeners();
 
-    console.log('[FS] ✅ Firebase ready | device:', DEVICE_ID);
+    // 7. Drain any saves that queued while Firebase was initializing
+    await drainSaveQueue();
+
     setSyncStatus('synced');
+    console.log('[FS] ✅ Firebase ready | device:', DEVICE_ID);
 
   } catch (e) {
     console.error('[FS] ❌ initFirestore failed:', e.message || e);
-    setSyncStatus('error', String(e.message || e).slice(0, 40));
-    db = null; // ensure fsSave returns early if Firebase failed
+    setSyncStatus('error', String(e.message || e).slice(0, 50));
+    db = null;
   }
 }
 
