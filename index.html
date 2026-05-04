@@ -1644,8 +1644,10 @@ function init() {
   updateSessCount();
   updateClientsCount();
   setView('dashboard');
-  document.getElementById('ld-start').value = ld();
-  document.getElementById('f-date').value = ld();
+  const ldStart = document.getElementById('ld-start');
+  if (ldStart) ldStart.value = ld();
+  const fDate = document.getElementById('f-date');
+  if (fDate) fDate.value = ld();
   cntTimer = setInterval(()=>{ const t=document.getElementById('tc'); if(t&&curView==='home') renderTasks(); }, 60000);
   checkImportURL();
   showMorningGreeting();
