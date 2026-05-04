@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Set-Location \"C:\\\\Users\\\\shada\\\\task-manager\"; \\(Get-Location\\).Path)"
+    ]
+  }
+}
