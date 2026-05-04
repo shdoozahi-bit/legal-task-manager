@@ -5212,19 +5212,15 @@ const FIREBASE_CONFIG = {
 };
 
 // Unique device ID — prevents our own writes from triggering the listener
-const DEVICE_ID = (() => {
-  let id = localStorage.getItem('tm_device_id');
-  if (!id) {
-    id = 'dev_' + Math.random().toString(36).slice(2, 10);
-    localStorage.setItem('tm_device_id', id);
-  }
-  return id;
-})();
+// ── DEVICE_ID: جديد لكل جلسة (tab/window) لضمان تفرّد كل نافذة ──
+// !! لا تُخزَّن في localStorage لأن تبّات نفس المتصفح تشاركها فيضيع التزامن !!
+const DEVICE_ID = 'dev_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
 
 // ─── State ───────────────────────────────────
 const FS_KEYS      = ['tasks','subcats','sessions','deadlines','clients','cases','templates'];
 let   db           = null;    // Firestore instance (null until connected)
 let   applyRemote  = false;   // true while writing remote data locally (blocks fsSave)
+const _saveQueue   = [];      // saves queued before Firebase is ready
 
 // ─── Sync indicator ──────────────────────────
 function setSyncStatus(status, msg) {
@@ -5246,8 +5242,17 @@ function setSyncStatus(status, msg) {
 
 // ─── Write one collection to Firestore ───────
 async function fsSave(key, data) {
-  if (!db || applyRemote) return;
+  if (applyRemote) return; // لا تعكس البيانات القادمة من Firestore
+
+  if (!db) {
+    // Firebase لم يتهيّأ بعد — احفظ في القائمة للتنفيذ لاحقاً
+    _saveQueue.push([key, JSON.parse(JSON.stringify(data ?? []))]);
+    console.log('[FS] queued (db not ready yet):', key);
+    return;
+  }
+
   setSyncStatus('syncing');
+  console.log('[FS] saving →', key, Array.isArray(data) ? data.length + ' items' : typeof data);
   try {
     const clean = JSON.parse(JSON.stringify(data ?? []));
     await db.collection('app').doc(key).set({
@@ -5255,9 +5260,10 @@ async function fsSave(key, data) {
       deviceId: DEVICE_ID,
       ts:       Date.now()
     });
+    console.log('[FS] saved ✓', key);
     setSyncStatus('synced');
   } catch (e) {
-    console.error('[FS] save failed:', key, e.code, e.message);
+    console.error('[FS] save FAILED:', key, e.code, e.message);
     setSyncStatus(
       e.code === 'permission-denied' ? 'error' : 'offline',
       e.code === 'permission-denied' ? 'Rules مرفوضة — عدّل قواعد Firestore' : undefined
@@ -5344,36 +5350,65 @@ async function initFirestore() {
   }
 
   // Step 4 — load all collections from Firestore
-  let loadedCount = 0;
+  const localDataMap = { tasks, subcats, sessions, deadlines, clients, cases, templates };
+  const lsKeys = { tasks:'tm_tasks', subcats:'tm_subcats', sessions:'tm_sessions',
+    deadlines:'tm_deadlines', clients:'tm_clients', cases:'tm_cases', templates:'tm_tpls' };
+
+  const loadedKeys   = new Set();
+  const emptyFsKeys  = [];   // keys that exist locally but not in Firestore
+
   for (const key of FS_KEYS) {
     try {
       const snap = await db.collection('app').doc(key).get();
       if (snap.exists && snap.data()?.data != null) {
         fsApplyLocal(key, snap.data().data);
-        loadedCount++;
-        console.log('[FS] loaded:', key, Array.isArray(snap.data().data) ? '(' + snap.data().data.length + ' items)' : '');
+        loadedKeys.add(key);
+        console.log('[FS] loaded ←', key, Array.isArray(snap.data().data) ? snap.data().data.length + ' items' : '');
+      } else {
+        emptyFsKeys.push(key);
+        console.log('[FS] empty in Firestore:', key);
       }
     } catch (e) {
       console.warn('[FS] load failed:', key, e.code);
     }
   }
 
-  // Step 5 — re-render UI with loaded data
-  if (loadedCount > 0) {
+  // Step 5 — إذا كانت Firestore فارغة، ارفع البيانات المحلية إليها تلقائياً
+  if (emptyFsKeys.length > 0) {
+    console.log('[FS] pushing local data to Firestore for:', emptyFsKeys);
+    for (const key of emptyFsKeys) {
+      const localData = localDataMap[key];
+      const hasData = Array.isArray(localData) ? localData.length > 0 : Object.keys(localData||{}).length > 0;
+      if (hasData) {
+        await fsSave(key, localData);
+      }
+    }
+  }
+
+  // Step 6 — re-render UI
+  if (loadedKeys.size > 0) {
     render();
     updateCounts(); updateSessCount(); updateClientsCount();
     if (curView === 'dashboard') renderDashboard();
-    console.log('[FS] loaded', loadedCount, '/', FS_KEYS.length, 'collections');
   }
 
-  // Step 6 — real-time listeners for live sync across devices
+  // Step 7 — فرّغ قائمة الانتظار (saves حدثت قبل جاهزية Firebase)
+  if (_saveQueue.length > 0) {
+    console.log('[FS] draining', _saveQueue.length, 'queued saves');
+    const q = _saveQueue.splice(0);
+    for (const [k, d] of q) await fsSave(k, d);
+  }
+
+  // Step 8 — real-time listeners: تحديث فوري عند تغيير أي جهاز آخر
   for (const key of FS_KEYS) {
     db.collection('app').doc(key).onSnapshot(
       snap => {
         if (!snap.exists || !snap.data()?.data) return;
-        if (snap.data().deviceId === DEVICE_ID) return; // skip our own writes
-        console.log('[FS] remote update:', key);
-        fsApplyLocal(key, snap.data().data);
+        const d = snap.data();
+        // تجاهل الكتابة القادمة من هذه النافذة بالذات
+        if (d.deviceId === DEVICE_ID) return;
+        console.log('[FS] ← remote update received:', key, 'from', d.deviceId.slice(0,14));
+        fsApplyLocal(key, d.data);
         fsRefreshUI(key);
         toast('🔄 تحديث من جهاز آخر');
         setSyncStatus('synced');
@@ -5389,7 +5424,9 @@ async function initFirestore() {
   }
 
   setSyncStatus('synced');
-  console.log('[FS] ✅ Firebase ready | device:', DEVICE_ID);
+  console.log('[FS] ✅ ready | device:', DEVICE_ID, '| loaded:', loadedKeys.size, '| pushed:', emptyFsKeys.filter(k => {
+    const d = localDataMap[k]; return Array.isArray(d) ? d.length > 0 : Object.keys(d||{}).length > 0;
+  }).length);
 }
 
 // ════════════════════════════════════════
