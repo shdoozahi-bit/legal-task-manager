@@ -4600,8 +4600,14 @@ const CONTRACT_TEMPLATES = [
 let customContractTemplates = JSON.parse(localStorage.getItem('tm_ct_custom') || '[]');
 let savedContracts          = JSON.parse(localStorage.getItem('tm_saved_cts') || '[]');
 
-function saveCustomCts() { localStorage.setItem('tm_ct_custom', JSON.stringify(customContractTemplates)); }
-function saveSavedCts()  { localStorage.setItem('tm_saved_cts', JSON.stringify(savedContracts)); }
+function saveCustomCts() {
+  localStorage.setItem('tm_ct_custom', JSON.stringify(customContractTemplates));
+  fsSave('contractTemplates', customContractTemplates);
+}
+function saveSavedCts() {
+  localStorage.setItem('tm_saved_cts', JSON.stringify(savedContracts));
+  fsSave('savedContracts', savedContracts);
+}
 
 function allContractTemplates() {
   const deleted = JSON.parse(localStorage.getItem('tm_ct_deleted') || '[]');
@@ -5219,7 +5225,7 @@ const FIREBASE_CONFIG = {
 const DEVICE_ID = 'dev_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
 
 // ─── State ───────────────────────────────────
-const FS_KEYS      = ['tasks','subcats','sessions','deadlines','clients','cases','templates'];
+const FS_KEYS      = ['tasks','subcats','sessions','deadlines','clients','cases','templates','contractTemplates','savedContracts'];
 let   db           = null;    // Firestore instance (null until connected)
 let   applyRemote  = false;   // true while writing remote data locally (blocks fsSave)
 const _saveQueue   = [];      // saves queued before Firebase is ready
@@ -5277,7 +5283,7 @@ async function fsSave(key, data) {
 async function fsPushAll() {
   if (!db) { toast('⚠️ Firebase غير متصل'); return; }
   toast('☁️ جارٍ رفع كل البيانات...');
-  const all = { tasks, subcats, sessions, deadlines, clients, cases, templates };
+  const all = { tasks, subcats, sessions, deadlines, clients, cases, templates, contractTemplates: customContractTemplates, savedContracts };
   for (const key of FS_KEYS) await fsSave(key, all[key]);
   toast('✅ رُفعت كل البيانات لـ Firebase');
 }
@@ -5294,7 +5300,9 @@ function fsApplyLocal(key, data) {
       case 'deadlines': deadlines = data; localStorage.setItem('tm_deadlines', JSON.stringify(data)); break;
       case 'clients':   clients   = data; localStorage.setItem('tm_clients',   JSON.stringify(data)); break;
       case 'cases':     cases     = data; localStorage.setItem('tm_cases',     JSON.stringify(data)); break;
-      case 'templates': templates = data; localStorage.setItem('tm_tpls',      JSON.stringify(data)); break;
+      case 'templates':         templates              = data; localStorage.setItem('tm_tpls',       JSON.stringify(data)); break;
+      case 'contractTemplates': customContractTemplates = data; localStorage.setItem('tm_ct_custom',  JSON.stringify(data)); break;
+      case 'savedContracts':    savedContracts          = data; localStorage.setItem('tm_saved_cts',  JSON.stringify(data)); break;
     }
   } finally {
     applyRemote = false;
@@ -5308,7 +5316,9 @@ function fsRefreshUI(key) {
   if (key === 'sessions'  && curView === 'sessions')  renderSessions();
   if (key === 'deadlines' && curView === 'deadlines') renderDeadlines();
   if (key === 'clients'   && curView === 'clients')   renderClients();
-  if (key === 'templates' && curView === 'templates') renderTemplates();
+  if (key === 'templates'         && curView === 'templates')  renderTemplates();
+  if (key === 'contractTemplates' && curView === 'contracts')  renderContracts();
+  if (key === 'savedContracts'    && curView === 'contracts')  renderSavedContracts();
   if (curView === 'dashboard') renderDashboard();
 }
 
@@ -5352,7 +5362,7 @@ async function initFirestore() {
   }
 
   // Step 4 — load all collections from Firestore
-  const localDataMap = { tasks, subcats, sessions, deadlines, clients, cases, templates };
+  const localDataMap = { tasks, subcats, sessions, deadlines, clients, cases, templates, contractTemplates: customContractTemplates, savedContracts };
   const lsKeys = { tasks:'tm_tasks', subcats:'tm_subcats', sessions:'tm_sessions',
     deadlines:'tm_deadlines', clients:'tm_clients', cases:'tm_cases', templates:'tm_tpls' };
 
