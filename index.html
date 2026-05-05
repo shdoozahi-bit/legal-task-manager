@@ -1651,8 +1651,14 @@ function init() {
   cntTimer = setInterval(()=>{ const t=document.getElementById('tc'); if(t&&curView==='home') renderTasks(); }, 60000);
   checkImportURL();
   showMorningGreeting();
-  // Firebase Firestore sync (non-blocking, runs after UI is ready)
+  // Firebase Firestore sync (non-blocking)
   initFirestore();
+  // Push latest data to reminder-server on load (fire-and-forget)
+  setTimeout(() => {
+    syncToServer('/tasks',    { tasks, subcats });
+    syncToServer('/sessions',  sessions);
+    syncToServer('/deadlines', deadlines);
+  }, 3000);
 }
 
 function migrateTasks() {
@@ -1704,6 +1710,19 @@ function scheduleSW() {
 }
 
 // ════════════════════════════════════════
+// REMINDER SERVER SYNC
+// ════════════════════════════════════════
+const REMINDER_SERVER = 'https://reminder-server-production-53e4.up.railway.app';
+
+function syncToServer(endpoint, data) {
+  fetch(REMINDER_SERVER + endpoint, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify(data)
+  }).catch(e => console.warn('[SERVER] sync failed:', endpoint, e.message));
+}
+
+// ════════════════════════════════════════
 // SAVE
 // ════════════════════════════════════════
 function save() {
@@ -1712,6 +1731,7 @@ function save() {
   scheduleSW();
   fsSave('tasks', tasks);
   fsSave('subcats', subcats);
+  syncToServer('/tasks', { tasks, subcats });
 }
 
 // ════════════════════════════════════════
@@ -2414,6 +2434,7 @@ let editSessId = null;
 function saveSessions() {
   localStorage.setItem('tm_sessions', JSON.stringify(sessions));
   fsSave('sessions', sessions);
+  syncToServer('/sessions', sessions);
 }
 
 function sessStatus(s) {
@@ -2558,7 +2579,6 @@ function saveSess(e) {
   }
   saveSessions(); renderSessions(); updateSessCount(); closeSessModal();
   toast(editSessId ? '✅ تم تعديل الجلسة' : '✅ تمت إضافة الجلسة');
-  syncSessionsToServer();
 }
 
 function deleteSess(id) {
@@ -2566,7 +2586,6 @@ function deleteSess(id) {
   sessions = sessions.filter(s => s.id !== id);
   saveSessions(); renderSessions(); updateSessCount();
   toast('🗑️ تم حذف الجلسة');
-  syncSessionsToServer();
 }
 
 function updateSessCount() {
@@ -2574,16 +2593,6 @@ function updateSessCount() {
   const el = document.getElementById('ct-sess'); if (el) el.textContent = n;
 }
 
-async function syncSessionsToServer() {
-  const serverUrl = localStorage.getItem('tm_server_url');
-  if (!serverUrl) return;
-  try {
-    await fetch(serverUrl + '/sessions', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify(sessions)
-    });
-  } catch {}
-}
 
 // ── SORT & FILTER ─────────────────────────
 function setTaskClientF(id) { taskClientF=id; renderTasks(); }
@@ -2784,9 +2793,7 @@ function saveDeadlines() {
   localStorage.setItem('tm_deadlines', JSON.stringify(deadlines));
   localStorage.setItem('tm_dl_cats',   JSON.stringify(dlCustomCats));
   fsSave('deadlines', deadlines);
-  // Sync to reminder-server
-  const url = localStorage.getItem('tm_server_url');
-  if (url) fetch(url+'/deadlines',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(deadlines)}).catch(()=>{});
+  syncToServer('/deadlines', deadlines);
 }
 
 // ── Migrate legacy legalDeadline tasks ───
