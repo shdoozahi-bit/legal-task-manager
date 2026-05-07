@@ -6119,13 +6119,12 @@ document.getElementById('morning-modal').addEventListener('click',e=>{if(e.targe
 document.getElementById('client-modal').addEventListener('click',e=>{if(e.target.id==='client-modal')closeClientModal();});
 document.getElementById('client-detail-modal').addEventListener('click',e=>{if(e.target.id==='client-detail-modal')closeClientDetail();});
 document.getElementById('payment-modal').addEventListener('click',e=>{if(e.target.id==='payment-modal')closePaymentModal();});
-document.getElementById('tpl-modal').addEventListener('click',e=>{if(e.target.id==='tpl-modal')closeTplModal();});
-document.getElementById('tpl-view-modal').addEventListener('click',e=>{if(e.target.id==='tpl-view-modal')closeTplView();});
+document.getElementById('custom-tpl-modal').addEventListener('click',e=>{if(e.target.id==='custom-tpl-modal')closeCustomTplEditor();});
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     closeFab(); closeMorning();
     closeModal();closeSubcatModal();closeSettings();closeSessModal();closeDlModal();
-    closeClientModal();closeClientDetail();closePaymentModal();closeTplModal();closeTplView();
+    closeClientModal();closeClientDetail();closePaymentModal();closeCustomTplEditor();
     closeCaseModal();
     closeWizard();closeCtPreview();closeCustomContractEditor();
     document.getElementById('saved-ct-modal').classList.remove('show');
