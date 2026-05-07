@@ -242,6 +242,7 @@ kbd{background:var(--bg);border:1px solid var(--bd);border-radius:4px;padding:1p
 .bg-pl{background:rgba(43,174,138,0.1);color:var(--ok)}
 .bg-cat{background:rgba(0,0,0,0.05);color:var(--txm)}
 .bg-lk{background:rgba(0,0,0,0.07);color:var(--txm)}
+.bg-legal{background:rgba(108,99,255,0.12);color:#6C63FF;font-weight:700}
 .cd{font-size:11px;color:var(--txm);margin-top:4px;display:flex;align-items:center;gap:3px}
 .cd.urgent{color:var(--err);font-weight:700}.cd.soon{color:var(--warn);font-weight:600}
 .ta{display:flex;gap:3px;flex-shrink:0}
@@ -359,32 +360,44 @@ textarea.fc{resize:vertical;min-height:65px}
 .sec-title{font-size:13px;font-weight:700;margin:18px 0 10px;color:var(--tx);display:flex;align-items:center;gap:7px}
 
 /* ── CALENDAR ── */
-.cal-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.cal-mt{font-size:18px;font-weight:800}
+.cal-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-shrink:0}
+.cal-mt{font-size:20px;font-weight:800}
 .cal-nv{display:flex;gap:6px}
-.cal-nv button{width:30px;height:30px;border-radius:7px;border:1px solid var(--bd);background:var(--card);color:var(--tx);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.cal-nv button{width:34px;height:34px;border-radius:8px;border:1px solid var(--bd);background:var(--card);color:var(--tx);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .2s}
 .cal-nv button:hover{border-color:var(--pr);color:var(--pr)}
-.cal-days-hd{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px}
-.cal-dn{text-align:center;font-size:11px;font-weight:600;color:var(--txm);padding:5px 0}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
-.cal-day{min-height:68px;background:var(--card);border-radius:8px;border:1px solid var(--bd);padding:5px;cursor:pointer;transition:all .2s;overflow:hidden}
-.cal-day:hover{border-color:var(--pr)}
+.cal-days-hd{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:5px;flex-shrink:0}
+.cal-dn{text-align:center;font-size:13px;font-weight:700;color:var(--txm);padding:7px 0}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.cal-day{min-height:110px;background:var(--card);border-radius:10px;border:1px solid var(--bd);padding:8px 9px;cursor:pointer;transition:all .2s;overflow:hidden}
+.cal-day:hover{border-color:var(--pr);box-shadow:0 2px 8px rgba(108,99,255,.1)}
 .cal-day.today{border-color:var(--pr);background:rgba(108,99,255,0.05)}
-.cal-day.om{opacity:.35}
-.cal-day .dn{font-size:11px;font-weight:600;margin-bottom:3px}
-.cal-day.today .dn{background:var(--pr);color:#fff;width:19px;height:19px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px}
-.cal-task-lbl{font-size:10px;line-height:1.3;padding:2px 5px 2px 4px;border-radius:4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;transition:opacity .15s;border-right:2px solid transparent;display:block}
+.cal-day.om{opacity:.3}
+.cal-day .dn{font-size:13px;font-weight:700;margin-bottom:5px}
+.cal-day.today .dn{background:var(--pr);color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px}
+.cal-task-lbl{font-size:11px;line-height:1.4;padding:3px 7px 3px 5px;border-radius:5px;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;transition:opacity .15s;border-right:2px solid transparent;display:block}
 .cal-task-lbl.p-high{background:rgba(224,64,79,0.1);border-right-color:var(--err)}
 .cal-task-lbl.p-medium{background:rgba(224,155,45,0.1);border-right-color:var(--warn)}
 .cal-task-lbl.p-low{background:rgba(43,174,138,0.08);border-right-color:var(--ok)}
 .cal-task-lbl.done{opacity:.38;text-decoration:line-through}
 .cal-task-lbl:hover{opacity:.7}
-/* Sessions in calendar — indigo */
 .cal-task-lbl.t-sess{background:rgba(90,82,224,0.11);border-right-color:var(--prd);color:var(--prd)}
-/* Deadlines in calendar — amber */
 .cal-task-lbl.t-dl{background:rgba(180,83,9,0.1);border-right-color:#B45309;color:#92400E}
 .cal-task-lbl.t-dl.t-urgent{background:rgba(224,64,79,0.13);border-right-color:var(--err);color:var(--err)}
-.cal-more{font-size:10px;color:var(--pr);font-weight:600;padding:1px 3px;margin-top:1px}
+.cal-more{font-size:11px;color:var(--pr);font-weight:700;padding:2px 4px;margin-top:2px}
+.cal-day.drag-over{border-color:var(--pr)!important;background:rgba(108,99,255,0.13)!important;transform:scale(1.02);z-index:2;position:relative}
+.cal-task-lbl[draggable="true"]{cursor:grab}
+.cal-task-lbl.dragging{opacity:.25;pointer-events:none}
+.cal-mode-toggle{display:flex;gap:3px;background:var(--bg);border-radius:8px;padding:3px;border:1px solid var(--bd)}
+.cal-mode-btn{padding:5px 15px;border-radius:6px;border:none;background:transparent;color:var(--txm);cursor:pointer;font-size:14px;font-weight:700;font-family:'Tajawal',sans-serif;transition:all .2s}
+.cal-mode-btn.on{background:var(--pr);color:#fff}
+/* ── Full-screen calendar view ── */
+#view-calendar{display:flex;flex-direction:column;height:calc(100vh - 76px - 22px);margin:-22px;margin-top:0;padding:14px 18px 10px;box-sizing:border-box;overflow:hidden}
+#view-calendar .ph{flex-shrink:0;margin-bottom:4px;padding:0}
+#view-calendar .ph h2{font-size:17px;margin:0}
+#view-calendar .cal-legend{flex-shrink:0;margin-bottom:8px}
+#view-calendar .cal-days-hd{flex-shrink:0}
+#view-calendar .cal-grid{flex:1;min-height:0;grid-auto-rows:1fr;overflow:hidden}
+#view-calendar .cal-day{min-height:0;overflow-y:auto}
 /* Calendar legend */
 .cal-legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;align-items:center;font-size:11px;color:var(--txm)}
 .cal-leg-item{display:flex;align-items:center;gap:5px}
@@ -610,8 +623,10 @@ textarea.fc{resize:vertical;min-height:65px}
   .topbar{right:0}
   .mn{display:block}.fr{grid-template-columns:1fr}
   .sg{grid-template-columns:repeat(2,1fr)}.cb-grid{grid-template-columns:1fr}
-  .cal-grid,.cal-days-hd{gap:2px}.cal-day{min-height:52px}
-  .cal-task-lbl{font-size:9px}
+  .cal-grid,.cal-days-hd{gap:2px}.cal-day{min-height:60px!important;padding:5px!important}
+  .cal-task-lbl{font-size:9px!important}
+  #view-calendar{margin:0;padding:8px;height:auto;overflow:visible}
+  #view-calendar .cal-grid{grid-auto-rows:unset}
   .pomo{left:10px;bottom:78px;right:10px;min-width:unset}
   .topbar-title{font-size:13px}
   .tb-btn span:not(.tb-tg-dot){display:none}
@@ -663,11 +678,15 @@ textarea.fc{resize:vertical;min-height:65px}
     <div class="ni" onclick="setView('contracts')" id="ni-contracts"><span class="ic">📝</span>إنشاء العقود</div>
     <div class="nav-sec">التصنيفات</div>
     <div class="ni" onclick="setView('home');switchCat('all')" id="ni-all"><span class="ic">🏠</span>الكل<span class="ct" id="ct-all">0</span></div>
-    <div class="ni" onclick="setView('home');switchCat('daily')" id="ni-daily"><span class="ic">☀️</span>يومية<span class="ct" id="ct-daily">0</span></div>
-    <div class="ni" onclick="setView('home');switchCat('weekly')" id="ni-weekly"><span class="ic">📅</span>أسبوعية<span class="ct" id="ct-weekly">0</span></div>
-    <div class="ni" onclick="setView('home');switchCat('monthly')" id="ni-monthly"><span class="ic">🗓️</span>شهرية<span class="ct" id="ct-monthly">0</span></div>
-    <div class="ni" onclick="setView('home');switchCat('yearly')" id="ni-yearly"><span class="ic">🎯</span>سنوية<span class="ct" id="ct-yearly">0</span></div>
     <div class="ni" onclick="setView('home');switchCat('once')" id="ni-once"><span class="ic">📌</span>مرة واحدة<span class="ct" id="ct-once">0</span></div>
+    <div class="nav-sec">⚖️ المهام القانونية</div>
+    <div class="ni" onclick="setView('home');switchLegalCat('_legal')" id="ni-legal-all"><span class="ic">📋</span>جميع القانونية<span class="ct" id="ct-legal-all">0</span></div>
+    <div class="ni" onclick="setView('home');switchLegalCat('لوائح دعوى')" id="ni-legal-0"><span class="ic">📜</span>لوائح دعوى<span class="ct" id="ct-legal-0">0</span></div>
+    <div class="ni" onclick="setView('home');switchLegalCat('مذكرات جوابية')" id="ni-legal-1"><span class="ic">📄</span>مذكرات جوابية<span class="ct" id="ct-legal-1">0</span></div>
+    <div class="ni" onclick="setView('home');switchLegalCat('مذكرات اعتراضية')" id="ni-legal-2"><span class="ic">📃</span>مذكرات اعتراضية<span class="ct" id="ct-legal-2">0</span></div>
+    <div class="ni" onclick="setView('home');switchLegalCat('إخطارات وخطابات وغيرها')" id="ni-legal-3"><span class="ic">✉️</span>إخطارات وخطابات<span class="ct" id="ct-legal-3">0</span></div>
+    <div class="ni" onclick="setView('home');switchLegalCat('تقديم طلبات تنفيذ')" id="ni-legal-4"><span class="ic">⚖️</span>طلبات تنفيذ<span class="ct" id="ct-legal-4">0</span></div>
+    <div class="ni" onclick="setView('home');switchLegalCat('مراجعات ومتابعات')" id="ni-legal-5"><span class="ic">🔍</span>مراجعات ومتابعات<span class="ct" id="ct-legal-5">0</span></div>
     <div class="nav-sec">أدوات</div>
     <div class="ni" onclick="openSubcatModal()"><span class="ic">🏷️</span>الفئات الفرعية</div>
     <div class="ni" onclick="clearCompleted()"><span class="ic">🗑️</span>حذف المكتملة</div>
@@ -735,6 +754,8 @@ textarea.fc{resize:vertical;min-height:65px}
       </div>
     </div>
     <div class="sr"><span class="si">🔍</span><input type="text" id="search" placeholder="ابحث عن مهمة..." oninput="renderTasks()"></div>
+    <div class="scb" id="repeat-filter-bar"></div>
+    <div class="scb" id="legal-filter-bar"></div>
     <div class="scb" id="scb"></div>
     <div id="task-client-filter"></div>
     <div id="tc"></div>
@@ -759,6 +780,10 @@ textarea.fc{resize:vertical;min-height:65px}
         <button onclick="calNav(1)">‹</button>
       </div>
       <div class="cal-mt" id="cal-title"></div>
+      <div class="cal-mode-toggle">
+        <button class="cal-mode-btn on" id="btn-greg" onclick="setCalMode('gregorian')" title="التقويم الميلادي">م</button>
+        <button class="cal-mode-btn" id="btn-hijri" onclick="setCalMode('hijri')" title="تقويم أم القرى">هـ</button>
+      </div>
     </div>
     <div class="cal-legend">
       <span class="cal-leg-item"><span class="cal-leg-swatch" style="background:rgba(224,64,79,0.1);border-right-color:var(--err)"></span>مهام عالية</span>
@@ -924,7 +949,7 @@ textarea.fc{resize:vertical;min-height:65px}
       <div class="fg"><label class="fl">الوصف</label>
         <textarea class="fc" id="f-desc" placeholder="تفاصيل إضافية..."></textarea></div>
       <div class="fr">
-        <div class="fg"><label class="fl">التصنيف *</label>
+        <div class="fg"><label class="fl">نوع التكرار *</label>
           <select class="fc" id="f-cat" onchange="onCatChange()">
             <option value="daily">☀️ يومية</option>
             <option value="weekly">📅 أسبوعية</option>
@@ -935,6 +960,16 @@ textarea.fc{resize:vertical;min-height:65px}
         <div class="fg"><label class="fl">الفئة الفرعية</label>
           <select class="fc" id="f-subcat"></select></div>
       </div>
+      <div class="fg"><label class="fl">⚖️ التصنيف القانوني (اختياري)</label>
+        <select class="fc" id="f-legal-cat">
+          <option value="">-- بدون تصنيف قانوني --</option>
+          <option value="لوائح دعوى">📜 لوائح دعوى</option>
+          <option value="مذكرات جوابية">📄 مذكرات جوابية</option>
+          <option value="مذكرات اعتراضية">📃 مذكرات اعتراضية</option>
+          <option value="إخطارات وخطابات وغيرها">✉️ إخطارات وخطابات وغيرها</option>
+          <option value="تقديم طلبات تنفيذ">⚖️ تقديم طلبات تنفيذ</option>
+          <option value="مراجعات ومتابعات">🔍 مراجعات ومتابعات</option>
+        </select></div>
       <div class="fr">
         <div class="fg"><label class="fl">التاريخ</label>
           <input type="date" class="fc" id="f-date">
@@ -1575,13 +1610,16 @@ const DCATS = {
 const CNAMES={all:'جميع المهام',daily:'المهام اليومية',weekly:'المهام الأسبوعية',monthly:'المهام الشهرية',yearly:'المهام السنوية',once:'مهام لمرة واحدة'};
 const CICONS={all:'🏠',daily:'☀️',weekly:'📅',monthly:'🗓️',yearly:'🎯',once:'📌'};
 const PLBL={high:'🔴 عالية',medium:'🟡 متوسطة',low:'🟢 منخفضة'};
+const LEGAL_CATS=['لوائح دعوى','مذكرات جوابية','مذكرات اعتراضية','إخطارات وخطابات وغيرها','تقديم طلبات تنفيذ','مراجعات ومتابعات'];
+const LEGAL_ICONS=['📜','📄','📃','✉️','⚖️','🔍'];
 const MONTHS=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
 const DAYS=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
 const DDAYS=['ح','ن','ث','ر','خ','ج','س'];
+const HIJRI_MONTHS=['محرم','صفر','ربيع الأول','ربيع الآخر','جمادى الأولى','جمادى الآخرة','رجب','شعبان','رمضان','شوال','ذو القعدة','ذو الحجة'];
 
 let tasks    = JSON.parse(localStorage.getItem('tm_tasks')   || '[]');
 let subcats  = JSON.parse(localStorage.getItem('tm_subcats') || JSON.stringify(DCATS));
-let curCat   = 'all', curSub = 'all', curView = 'home';
+let curCat   = 'all', curSub = 'all', curView = 'home', curLegalCat = 'all';
 let sortMode = 'date', viewMode = 'list';
 let editId   = null, selPriority = 'high', swReady = false;
 let checkTimer = null, cntTimer = null;
@@ -1589,6 +1627,9 @@ let clFormItems = [];
 let expandedNotes = new Set();
 let calYear, calMonth;
 let calDayDate = null;
+let calMode = 'gregorian';
+let calHijriYear = null, calHijriMonth = null;
+let calDragTaskId = null, calJustDropped = false;
 
 // Pomodoro state
 let pomo = {running:false, mode:'focus', secs:25*60, sessions:0, taskId:null, tid:null};
@@ -1848,6 +1889,7 @@ function render() {
   updateStatCards();
   updateProgress();
   renderSubcatBar();
+  renderFilterBars();
   renderTasks();
   updateHeader();
 }
@@ -1863,6 +1905,11 @@ function updateCounts() {
   });
   const all=document.getElementById('ct-all'); if(all) all.textContent=tot;
   const arch=document.getElementById('ct-arch'); if(arch) arch.textContent=tasks.filter(t=>t.completed).length;
+  const elLA=document.getElementById('ct-legal-all'); if(elLA) elLA.textContent=tasks.filter(t=>!t.completed&&t.legalCat).length;
+  LEGAL_CATS.forEach((cat,i)=>{
+    const n=tasks.filter(t=>!t.completed&&t.legalCat===cat).length;
+    const el=document.getElementById('ct-legal-'+i); if(el) el.textContent=n;
+  });
 }
 
 function updateStatCards() {
@@ -1920,6 +1967,8 @@ function renderTasks() {
   let list=[...tasks].filter(t=>!t.completed);
   if(curCat!=='all') list=list.filter(t=>t.category===curCat);
   if(curSub!=='all')    list=list.filter(t=>t.subcategory===curSub);
+  if(curLegalCat==='_legal') list=list.filter(t=>!!t.legalCat);
+  else if(curLegalCat!=='all') list=list.filter(t=>t.legalCat===curLegalCat);
   if(taskClientF)       list=list.filter(t=>t.clientId===taskClientF);
   if(q) list=list.filter(t=>t.title.toLowerCase().includes(q)||(t.description||'').toLowerCase().includes(q));
   list=getSortedTasks(list);
@@ -1987,6 +2036,7 @@ function taskCard(t) {
         ${tb}
         <span class="bg bg-p${t.priority.charAt(0)}">${PLBL[t.priority]}</span>
         ${curCat==='all'?`<span class="bg bg-cat">${CICONS[t.category]}</span>`:''}
+        ${t.legalCat?`<span class="bg bg-legal">⚖️ ${esc(t.legalCat)}</span>`:''}
         ${clientBadge(t.clientId)}
         ${lk?`<span class="bg bg-lk">🔒 ${esc(depTask?.title||'مقفل')}</span>`:''}
       </div>
@@ -2003,20 +2053,56 @@ function taskCard(t) {
   </div>`;
 }
 
+function renderFilterBars() {
+  const rb=document.getElementById('repeat-filter-bar');
+  if(rb){
+    const types=[{v:'all',l:'الكل'},{v:'daily',l:'☀️ يومية'},{v:'weekly',l:'📅 أسبوعية'},{v:'monthly',l:'🗓️ شهرية'},{v:'yearly',l:'🎯 سنوية'},{v:'once',l:'📌 مرة واحدة'}];
+    rb.innerHTML='<span style="font-size:11px;color:var(--txm);padding:2px 4px;align-self:center">نوع التكرار:</span>'+types.map(t=>`<div class="chip${curCat===t.v?' on':''}" onclick="setRepeatFilter('${t.v}')">${t.l}</div>`).join('');
+  }
+  const lb=document.getElementById('legal-filter-bar');
+  if(lb){
+    let h='<span style="font-size:11px;color:var(--txm);padding:2px 4px;align-self:center">القانوني:</span>';
+    h+=`<div class="chip${curLegalCat==='all'?' on':''}" onclick="switchLegalCat('all')">الكل</div>`;
+    h+=`<div class="chip${curLegalCat==='_legal'?' on':''}" onclick="switchLegalCat('_legal')">⚖️ جميع القانونية</div>`;
+    LEGAL_CATS.forEach((cat,i)=>{h+=`<div class="chip${curLegalCat===cat?' on':''}" onclick="switchLegalCat(${JSON.stringify(cat)})">${LEGAL_ICONS[i]} ${cat}</div>`;});
+    lb.innerHTML=h;
+  }
+}
+
+function setRepeatFilter(c) {
+  curCat=c; curSub='all';
+  renderFilterBars(); renderSubcatBar(); renderTasks(); updateHeader(); updateCounts();
+}
+
+function switchLegalCat(c) {
+  curLegalCat=c;
+  renderFilterBars(); renderTasks(); updateHeader(); updateCounts();
+  document.getElementById('ni-legal-all')?.classList.toggle('on',(c==='_legal')&&curView==='home');
+  LEGAL_CATS.forEach((cat,i)=>{document.getElementById('ni-legal-'+i)?.classList.toggle('on',c===cat&&curView==='home');});
+}
+
 function updateHeader() {
-  document.getElementById('ph-title').textContent=CNAMES[curCat];
-  const n=tasks.filter(t=>!t.completed&&(curCat==='all'||t.category===curCat)).length;
-  document.getElementById('ph-sub').textContent=n?`${n} مهمة نشطة`:'لا توجد مهام نشطة';
+  let title=CNAMES[curCat]||'جميع المهام';
+  if(curLegalCat==='_legal') title+=' — ⚖️ جميع المهام القانونية';
+  else if(curLegalCat!=='all') title+=' — ⚖️ '+curLegalCat;
+  document.getElementById('ph-title').textContent=title;
+  let base=tasks.filter(t=>!t.completed);
+  if(curCat!=='all') base=base.filter(t=>t.category===curCat);
+  if(curLegalCat==='_legal') base=base.filter(t=>!!t.legalCat);
+  else if(curLegalCat!=='all') base=base.filter(t=>t.legalCat===curLegalCat);
+  document.getElementById('ph-sub').textContent=base.length?`${base.length} مهمة نشطة`:'لا توجد مهام نشطة';
   ['all','daily','weekly','monthly','yearly','once'].forEach(c=>{
-    document.getElementById('ni-'+c)?.classList.toggle('on',c===curCat&&curView==='home');
+    document.getElementById('ni-'+c)?.classList.toggle('on',c===curCat&&curView==='home'&&curLegalCat==='all');
   });
+  document.getElementById('ni-legal-all')?.classList.toggle('on',curLegalCat==='_legal'&&curView==='home');
+  LEGAL_CATS.forEach((cat,i)=>{document.getElementById('ni-legal-'+i)?.classList.toggle('on',curLegalCat===cat&&curView==='home');});
 }
 
 // ════════════════════════════════════════
 // TASK ACTIONS
 // ════════════════════════════════════════
 function switchCat(c) {
-  curCat=c; curSub='all';
+  curCat=c; curSub='all'; curLegalCat='all';
   if(document.getElementById('search')) document.getElementById('search').value='';
   render();
 }
@@ -2024,13 +2110,65 @@ function filterSub(s){curSub=s;renderSubcatBar();renderTasks();}
 function setSort(s){sortMode=s;document.getElementById('sort-date').classList.toggle('on',s==='date');document.getElementById('sort-pri').classList.toggle('on',s==='priority');renderTasks();}
 function setViewMode(m){viewMode=m;document.getElementById('vl').classList.toggle('on',m==='list');document.getElementById('vb').classList.toggle('on',m==='boxes');renderTasks();}
 
+function nextOccurrenceDate(task) {
+  if(!['daily','weekly','monthly','yearly'].includes(task.category)) return null;
+  const base = task.dueDate || ld();
+  const [y,m,d] = base.split('-').map(Number);
+  let next;
+  switch(task.category) {
+    case 'daily':
+      next = new Date(y,m-1,d+1);
+      break;
+    case 'weekly':
+      next = new Date(y,m-1,d+7);
+      break;
+    case 'monthly': {
+      // m is 1-based; new Date(y, m, d) → next month (0-based m = current month index)
+      const attempt = new Date(y,m,d);
+      next = attempt.getMonth()===(m%12) ? attempt : new Date(y,m+1,0);
+      break;
+    }
+    case 'yearly': {
+      const attempt = new Date(y+1,m-1,d);
+      next = attempt.getMonth()===(m-1) ? attempt : new Date(y+1,m,0);
+      break;
+    }
+  }
+  return ld(next);
+}
+
+function spawnRecurringCopy(t) {
+  const nextDate = nextOccurrenceDate(t);
+  if(!nextDate) return false;
+  // Skip if an uncompleted copy for this source already exists
+  if(tasks.some(x=>!x.completed && x.recurringSourceId===t.id)) return false;
+  const copy = Object.assign({}, t, {
+    id:                (Date.now()+1).toString()+Math.random().toString(36).slice(2,7),
+    completed:         false,
+    notifiedDate:      null,
+    createdAt:         new Date().toISOString(),
+    dueDate:           nextDate,
+    recurringSourceId: t.id,
+    notes:             [],
+    checklist:         (t.checklist||[]).map(x=>({...x,done:false})),
+  });
+  delete copy.completedAt;
+  tasks.push(copy);
+  return true;
+}
+
 function toggleTask(id) {
   const t=tasks.find(x=>x.id===id); if(!t||isLocked(t)) return;
   t.completed=!t.completed;
-  if(t.completed) t.completedAt=new Date().toISOString();
-  else delete t.completedAt;
+  let msg = t.completed ? '✅ تم إكمال المهمة' : '↩️ تم إلغاء الإكمال';
+  if(t.completed) {
+    t.completedAt=new Date().toISOString();
+    if(spawnRecurringCopy(t)) msg += ' • تمت جدولة الدورة القادمة 📅';
+  } else {
+    delete t.completedAt;
+  }
   save(); render(); updateCounts();
-  toast(t.completed?'✅ تم إكمال المهمة':'↩️ تم إلغاء الإكمال');
+  toast(msg);
 }
 
 function deleteTask(id) {
@@ -2079,6 +2217,7 @@ function openAddModal(preDate) {
   document.getElementById('f-date').value=preDate||ld();
   document.getElementById('f-time').value='';
   document.getElementById('f-cat').value=curCat!=='all'?curCat:'daily';
+  document.getElementById('f-legal-cat').value='';
   onCatChange(); selPri('high');
   clFormItems=[]; renderClForm();
   document.getElementById('clf-input').value='';
@@ -2100,6 +2239,7 @@ function editTask(id) {
   document.getElementById('f-cat').value=t.category;
   document.getElementById('f-date').value=t.dueDate||'';
   document.getElementById('f-time').value=t.dueTime||'';
+  document.getElementById('f-legal-cat').value=t.legalCat||'';
   onCatChange();
   document.getElementById('f-subcat').value=t.subcategory||'';
   selPri(t.priority||'high');
@@ -2128,11 +2268,12 @@ function saveTask(e) {
   const reminders = getCleanReminders(taskModalReminders);
   const clientId  = document.getElementById('f-client').value || null;
   const caseId    = document.getElementById('f-case').value   || null;
+  const legalCat  = document.getElementById('f-legal-cat').value || null;
   if(editId){
     const t=tasks.find(x=>x.id===editId);
-    if(t) Object.assign(t,{title,description:desc,category:cat,subcategory:sub,dueDate:date,dueTime:time,priority:selPriority,checklist:cl,dependsOn:dep,notifiedDate:null,reminders,clientId,caseId});
+    if(t) Object.assign(t,{title,description:desc,category:cat,subcategory:sub,dueDate:date,dueTime:time,priority:selPriority,checklist:cl,dependsOn:dep,notifiedDate:null,reminders,clientId,caseId,legalCat});
   } else {
-    tasks.push({id:Date.now().toString(),title,description:desc,category:cat,subcategory:sub,dueDate:date,dueTime:time,priority:selPriority,checklist:cl,notes:[],dependsOn:dep,completed:false,notifiedDate:null,reminders,clientId,caseId,createdAt:new Date().toISOString()});
+    tasks.push({id:Date.now().toString(),title,description:desc,category:cat,subcategory:sub,dueDate:date,dueTime:time,priority:selPriority,checklist:cl,notes:[],dependsOn:dep,completed:false,notifiedDate:null,reminders,clientId,caseId,legalCat,createdAt:new Date().toISOString()});
   }
   save(); render(); closeModal();
   toast(editId?'✅ تم التعديل':'✅ تمت الإضافة');
@@ -2200,7 +2341,88 @@ function renderStats() {
 // ════════════════════════════════════════
 // CALENDAR
 // ════════════════════════════════════════
-function calNav(dir){calMonth+=dir;if(calMonth>11){calMonth=0;calYear++;}else if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
+function calNav(dir) {
+  if(calMode==='hijri'){
+    calHijriMonth+=dir;
+    if(calHijriMonth>12){calHijriMonth=1;calHijriYear++;}
+    else if(calHijriMonth<1){calHijriMonth=12;calHijriYear--;}
+  } else {
+    calMonth+=dir;
+    if(calMonth>11){calMonth=0;calYear++;}
+    else if(calMonth<0){calMonth=11;calYear--;}
+  }
+  renderCalendar();
+}
+
+// ── Hijri conversion (Umm al-Qura via Intl API) ───────────────────────────
+function getHijriParts(date) {
+  try {
+    const p=new Intl.DateTimeFormat('en-u-ca-islamic-umalqura',{day:'numeric',month:'numeric',year:'numeric'}).formatToParts(date);
+    const r={};p.forEach(x=>{if(x.type!=='literal')r[x.type]=parseInt(x.value)});
+    return (r.year&&r.month&&r.day)?r:null;
+  } catch(e){return null;}
+}
+
+function hijriToGregorianDate(hy,hm,hd) {
+  // Approx Gregorian year then binary-search by day index
+  const approxGY=Math.round(hy*354.367/365.25+622);
+  let l=Math.floor(new Date(approxGY-1,0,1).getTime()/86400000);
+  let r=Math.floor(new Date(approxGY+1,11,31).getTime()/86400000);
+  while(l<=r){
+    const mid=(l+r)>>1;
+    const d=new Date(mid*86400000);
+    const h=getHijriParts(d);
+    if(!h) return null;
+    const diff=h.year!==hy?h.year-hy:h.month!==hm?h.month-hm:h.day-hd;
+    if(diff===0) return new Date(d.getFullYear(),d.getMonth(),d.getDate());
+    if(diff<0) l=mid+1; else r=mid-1;
+  }
+  return null;
+}
+
+function setCalMode(mode) {
+  calMode=mode;
+  document.getElementById('btn-greg').classList.toggle('on',mode==='gregorian');
+  document.getElementById('btn-hijri').classList.toggle('on',mode==='hijri');
+  if(mode==='hijri'&&!calHijriYear){
+    const h=getHijriParts(new Date(calYear,calMonth,15));
+    if(!h){toast('⚠️ التقويم الهجري غير مدعوم في هذا المتصفح');calMode='gregorian';document.getElementById('btn-greg').classList.add('on');document.getElementById('btn-hijri').classList.remove('on');return;}
+    calHijriYear=h.year; calHijriMonth=h.month;
+  }
+  renderCalendar();
+}
+
+// ── Drag & Drop helpers ────────────────────────────────────────────────────
+function calDragStart(e,taskId) {
+  calDragTaskId=taskId;
+  e.dataTransfer.setData('text/plain',taskId);
+  e.dataTransfer.effectAllowed='move';
+  e.target.classList.add('dragging');
+}
+function calDragEnd(e) {
+  e.target.classList.remove('dragging');
+  document.querySelectorAll('.cal-day.drag-over').forEach(el=>el.classList.remove('drag-over'));
+  calDragTaskId=null;
+}
+function calDragOver(e) {
+  e.preventDefault(); e.dataTransfer.dropEffect='move';
+  e.currentTarget.classList.add('drag-over');
+}
+function calDragLeave(e) {
+  if(!e.currentTarget.contains(e.relatedTarget)) e.currentTarget.classList.remove('drag-over');
+}
+function calDrop(e,ds) {
+  e.preventDefault(); e.stopPropagation();
+  e.currentTarget.classList.remove('drag-over');
+  calJustDropped=true; setTimeout(()=>calJustDropped=false,250);
+  const tid=e.dataTransfer.getData('text/plain')||calDragTaskId;
+  if(!tid||!ds) return;
+  const t=tasks.find(x=>x.id===tid); if(!t) return;
+  if(t.dueDate===ds) return;
+  t.dueDate=ds; save(); renderCalendar();
+  toast('📅 تم نقل المهمة إلى '+ds);
+  calDragTaskId=null;
+}
 // ── Calendar label helpers ────────────────
 // ── Client + Case label helper ────────────
 function clientCaseLabel(clientId, caseId) {
@@ -2216,7 +2438,7 @@ function calTaskLabel(t) {
   const ccl   = clientCaseLabel(t.clientId, t.caseId);
   const base  = t.subcategory ? `${t.subcategory} - ${t.title}` : t.title;
   const label = ccl ? `${ccl} — ${base}` : base;
-  return `<span class="cal-task-lbl p-${t.priority}${t.completed?' done':''}">${esc(label)}</span>`;
+  return `<span class="cal-task-lbl p-${t.priority}${t.completed?' done':''}" draggable="true" ondragstart="calDragStart(event,'${t.id}')" ondragend="calDragEnd(event)">${esc(label)}</span>`;
 }
 function calSessLabel(s) {
   const cName = s.clientId ? (clients.find(c=>c.id===s.clientId)?.name || s.client) : s.client;
@@ -2237,61 +2459,84 @@ function calDlLabel(dl) {
 }
 
 function renderCalendar() {
-  document.getElementById('cal-title').textContent = `${MONTHS[calMonth]} ${calYear}`;
-  document.getElementById('cal-days-hd').innerHTML = DDAYS.map(d=>`<div class="cal-dn">${d}</div>`).join('');
-  const first    = new Date(calYear,calMonth,1).getDay();
-  const last     = new Date(calYear,calMonth+1,0).getDate();
-  const today    = ld();
-  let cells = [];
-  const prevLast = new Date(calYear,calMonth,0).getDate();
-  for(let i=first-1;i>=0;i--) cells.push({day:prevLast-i,cur:false});
-  for(let d=1;d<=last;d++)    cells.push({day:d,cur:true});
-  const rem=(7-cells.length%7)%7;
-  for(let d=1;d<=rem;d++)     cells.push({day:d,cur:false});
+  if(calMode==='hijri') renderCalendarHijri();
+  else renderCalendarGregorian();
+}
 
-  const grid = cells.map(({day,cur})=>{
-    const ds       = cur ? `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}` : null;
-    const isToday  = ds === today;
-    if (!ds) return `<div class="cal-day om"><div class="dn">${day}</div></div>`;
-
-    // Collect all items for this day
-    const dayTasks = tasks.filter(t => t.dueDate === ds);
-    const daySess  = sessions.filter(s => s.date === ds);
-    const dayDls   = deadlines.filter(d => d.deadline === ds);
-
+function _buildCalCells(cells, today) {
+  return cells.map(({ds, label})=>{
+    if(!ds) return `<div class="cal-day om"><div class="dn">${label}</div></div>`;
+    const isToday=ds===today;
+    const dayTasks=tasks.filter(t=>t.dueDate===ds);
+    const daySess =sessions.filter(s=>s.date===ds);
+    const dayDls  =deadlines.filter(d=>d.deadline===ds);
     dayTasks.sort((a,b)=>{
       if(a.completed!==b.completed) return a.completed?1:-1;
       const p={high:0,medium:1,low:2};
       return (p[a.priority]||1)-(p[b.priority]||1);
     });
-
-    // Build label list: distribute slots (max 4 total)
-    const MAX = 4;
-    const labels = [];
-    // Priority: urgent deadlines first, then tasks, then sessions, then normal deadlines
-    const urgentDls = dayDls.filter(d => { const x=dlDiffDays(d); return x>=0&&x<=3; });
-    const normalDls = dayDls.filter(d => { const x=dlDiffDays(d); return !(x>=0&&x<=3); });
-
-    urgentDls.forEach(d => { if(labels.length<MAX) labels.push(calDlLabel(d)); });
-    dayTasks.forEach(t  => { if(labels.length<MAX) labels.push(calTaskLabel(t)); });
-    daySess.forEach(s   => { if(labels.length<MAX) labels.push(calSessLabel(s)); });
-    normalDls.forEach(d => { if(labels.length<MAX) labels.push(calDlLabel(d)); });
-
-    const total = dayTasks.length + daySess.length + dayDls.length;
-    const more  = total - labels.length;
-    const moreLbl = more > 0 ? `<div class="cal-more">+${more} أخرى</div>` : '';
-
-    return `<div class="cal-day${isToday?' today':''}" onclick="showCalDay('${ds}')">`
-      + `<div class="dn">${day}</div>`
-      + labels.join('') + moreLbl + '</div>';
+    const MAX=4, lbls=[];
+    const urgentDls=dayDls.filter(d=>{const x=dlDiffDays(d);return x>=0&&x<=3;});
+    const normalDls=dayDls.filter(d=>{const x=dlDiffDays(d);return !(x>=0&&x<=3);});
+    urgentDls.forEach(d=>{if(lbls.length<MAX)lbls.push(calDlLabel(d));});
+    dayTasks.forEach(t =>{if(lbls.length<MAX)lbls.push(calTaskLabel(t));});
+    daySess.forEach(s  =>{if(lbls.length<MAX)lbls.push(calSessLabel(s));});
+    normalDls.forEach(d=>{if(lbls.length<MAX)lbls.push(calDlLabel(d));});
+    const more=dayTasks.length+daySess.length+dayDls.length-lbls.length;
+    const moreLbl=more>0?`<div class="cal-more">+${more} أخرى</div>`:'';
+    return `<div class="cal-day${isToday?' today':''}" onclick="showCalDay('${ds}')" ondragover="calDragOver(event)" ondragleave="calDragLeave(event)" ondrop="calDrop(event,'${ds}')">`
+      +`<div class="dn">${label}</div>`+lbls.join('')+moreLbl+'</div>';
   }).join('');
-  document.getElementById('cal-grid').innerHTML = grid;
+}
+
+function renderCalendarGregorian() {
+  document.getElementById('cal-title').textContent=`${MONTHS[calMonth]} ${calYear}`;
+  document.getElementById('cal-days-hd').innerHTML=DDAYS.map(d=>`<div class="cal-dn">${d}</div>`).join('');
+  const first=new Date(calYear,calMonth,1).getDay();
+  const last =new Date(calYear,calMonth+1,0).getDate();
+  const prevLast=new Date(calYear,calMonth,0).getDate();
+  const today=ld();
+  let cells=[];
+  for(let i=first-1;i>=0;i--) cells.push({ds:null,label:prevLast-i});
+  for(let d=1;d<=last;d++){
+    const ds=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    cells.push({ds,label:d});
+  }
+  const rem=(7-cells.length%7)%7;
+  for(let d=1;d<=rem;d++) cells.push({ds:null,label:d});
+  document.getElementById('cal-grid').innerHTML=_buildCalCells(cells,today);
+}
+
+function renderCalendarHijri() {
+  const firstGreg=hijriToGregorianDate(calHijriYear,calHijriMonth,1);
+  if(!firstGreg){toast('⚠️ التقويم الهجري غير مدعوم في هذا المتصفح');setCalMode('gregorian');return;}
+  // Determine month length (29 or 30)
+  const day30=new Date(firstGreg.getTime()+29*86400000);
+  const h30=getHijriParts(day30);
+  const monthLen=(h30&&h30.year===calHijriYear&&h30.month===calHijriMonth)?30:29;
+  const today=ld();
+  const startDOW=firstGreg.getDay();
+  let cells=[];
+  for(let i=0;i<startDOW;i++) cells.push({ds:null,label:''});
+  for(let d=0;d<monthLen;d++){
+    const gd=new Date(firstGreg.getTime()+d*86400000);
+    cells.push({ds:ld(gd),label:d+1});
+  }
+  const rem=(7-cells.length%7)%7;
+  for(let i=0;i<rem;i++) cells.push({ds:null,label:''});
+  document.getElementById('cal-title').textContent=`${HIJRI_MONTHS[calHijriMonth-1]} ${calHijriYear} هـ`;
+  document.getElementById('cal-days-hd').innerHTML=DDAYS.map(d=>`<div class="cal-dn">${d}</div>`).join('');
+  document.getElementById('cal-grid').innerHTML=_buildCalCells(cells,today);
 }
 
 function showCalDay(ds) {
+  if(calJustDropped) return;
   calDayDate = ds;
   const [y,m,d] = ds.split('-').map(Number);
-  document.getElementById('cal-modal-title').textContent = `${d} ${MONTHS[m-1]} ${y}`;
+  let title = `${d} ${MONTHS[m-1]} ${y}`;
+  const hParts = getHijriParts(new Date(y,m-1,d));
+  if(hParts) title += `  /  ${hParts.day} ${HIJRI_MONTHS[hParts.month-1]} ${hParts.year} هـ`;
+  document.getElementById('cal-modal-title').textContent = title;
 
   const dayTasks = tasks.filter(t => t.dueDate === ds);
   const daySess  = sessions.filter(s => s.date === ds);
@@ -4388,16 +4633,90 @@ function deletePayment(clientId, payId) {
 // TEMPLATES
 // ════════════════════════════════════════
 const DEFAULT_TPLS = [
-  { id:'dt1', title:'عقد وكالة قضائية', category:'عقود', isDefault:true, createdAt: new Date().toISOString(),
-    content:`بسم الله الرحمن الرحيم\n\nعقد وكالة قضائية\n\nالطرف الأول (الموكِّل): ........................ هوية رقم: ........................\n\nالطرف الثاني (الوكيل / المحامي): ........................ ترخيص رقم: ........................\n\nالمادة الأولى — الوكالة\nيوكِّل الطرف الأول الطرفَ الثاني في تمثيله ونيابته أمام المحاكم والجهات القضائية كافة في القضية رقم ........................ المقامة أمام محكمة ........................\n\nالمادة الثانية — الأتعاب\nاتُّفق على أتعاب المحاماة بمبلغ ........................ ريال سعودي تُسدَّد وفق الاتفاق المبرم بين الطرفين.\n\nالمادة الثالثة — الصلاحيات\nيُخوَّل الوكيل بموجب هذا العقد بكامل الصلاحيات القانونية اللازمة للدفاع عن موكله.\n\nحُرِّر هذا العقد في مدينة ........................ بتاريخ ........................\n\nتوقيع الموكِّل: .......................   توقيع الوكيل: .......................` },
-  { id:'dt2', title:'مذكرة دفاع ابتدائية', category:'مذكرات', isDefault:true, createdAt: new Date().toISOString(),
-    content:`بسم الله الرحمن الرحيم\n\nمذكرة دفاع مقدَّمة لمحكمة ........................\n\nالقضية رقم: ........................ لعام: ........\n\nالمدَّعي: ........................\nالمدَّعى عليه: ........................ (موكلي)\n\nأولاً: وقائع الدعوى\n........................\n\nثانياً: الدفوع الشكلية\n........................\n\nثالثاً: الدفوع الموضوعية\n........................\n\nرابعاً: الطلبات\nبناءً على ما تقدم، يلتمس المدَّعى عليه من المحكمة الموقرة:\n1. رد الدعوى شكلاً لعدم القبول.\n2. رفض الدعوى موضوعاً لانعدام الأساس القانوني.\n3. إلزام المدَّعي بالرسوم والمصاريف.\n\nمقدِّمه: المحامي ........................\nالتاريخ: ........................` },
-  { id:'dt3', title:'طلب تأجيل جلسة', category:'طلبات', isDefault:true, createdAt: new Date().toISOString(),
-    content:`بسم الله الرحمن الرحيم\n\nطلب تأجيل جلسة\n\nالمحكمة الموقرة / قسم ........................\n\nالقضية رقم: ........................ / الجلسة المحددة: ........................\n\nأتقدم بهذا الطلب بصفتي محامياً عن المدَّعى عليه ........................ وأطلب من المحكمة الموقرة التفضل بتأجيل الجلسة المحددة بتاريخ ........................ للأسباب التالية:\n1. ........................\n2. ........................\n\nوعليه، أرجو التكرم بالنظر في هذا الطلب وإصدار أمر بالتأجيل.\n\nمع التقدير،\nالمحامي: ........................\nالتاريخ: ........................` },
-  { id:'dt4', title:'عريضة دعوى مدنية', category:'طلبات', isDefault:true, createdAt: new Date().toISOString(),
-    content:`بسم الله الرحمن الرحيم\n\nعريضة دعوى مدنية\n\nإلى: المحكمة ........................\n\nالمدَّعي: ........................ هوية رقم: ........................\n                بوكالة المحامي: ........................\n\nالمدَّعى عليه: ........................ هوية رقم: ........................\n\nموضوع الدعوى:\n........................\n\nوقائع الدعوى:\n........................\n\nالأسانيد القانونية:\n........................\n\nالطلبات:\n1. ........................\n2. ........................\n\nالمستندات المرفقة:\n- ........................\n\nمقدِّمها: ........................\nالتاريخ: ........................` },
-  { id:'dt5', title:'خطاب لموكل', category:'خطابات', isDefault:true, createdAt: new Date().toISOString(),
-    content:`السيد/ ........................ المحترم\n\nتحية طيبة وبعد،\n\nنودّ إحاطتكم علماً بآخر مستجدات قضيتكم رقم ........................ أمام محكمة ........................\n\nأولاً: الوضع الراهن\n........................\n\nثانياً: الإجراءات المتخذة\n........................\n\nثالثاً: الخطوات القادمة\n........................\n\nنرجو من سيادتكم التواصل معنا في حال وجود أي استفسار.\n\nوتقبلوا تحياتنا،\n\nالمحامي: ........................\nالهاتف: ........................\nالتاريخ: ........................` }
+  { id:'dt1', icon:'📜', title:'عقد وكالة قضائية', category:'عقود', description:'وكالة قضائية رسمية لتمثيل الموكِّل أمام المحاكم', isDefault:true, createdAt:new Date().toISOString(),
+    fields:[
+      {id:'cn',  label:'اسم الموكِّل كاملاً',         hint:'الاسم الثلاثي كما في الهوية',        type:'text'},
+      {id:'cid', label:'رقم هوية الموكِّل',            hint:'رقم الهوية الوطنية أو الإقامة',      type:'text'},
+      {id:'cnat',label:'جنسية الموكِّل',               hint:'سعودي / غير سعودي',                  type:'text'},
+      {id:'ln',  label:'اسم المحامي (الوكيل)',          hint:'الاسم الكامل للمحامي',               type:'text'},
+      {id:'ll',  label:'رقم ترخيص المحامي',            hint:'رقم الترخيص المهني',                 type:'text'},
+      {id:'cs',  label:'موضوع الوكالة والقضية',        hint:'وصف مختصر للقضية ومحلها',           type:'textarea'},
+      {id:'ct',  label:'المحكمة المختصة',              hint:'اسم المحكمة ودرجتها',                type:'text'},
+      {id:'pw',  label:'الصلاحيات الممنوحة للوكيل',   hint:'يمكن كتابة: كامل الصلاحيات القانونية اللازمة', type:'textarea'},
+      {id:'fe',  label:'قيمة الأتعاب (ريال)',          hint:'المبلغ الإجمالي بالأرقام',           type:'number'},
+      {id:'pm',  label:'طريقة سداد الأتعاب',          hint:'مثل: دفعة واحدة / على دفعتين',      type:'text'},
+      {id:'lo',  label:'مكان إبرام العقد',             hint:'اسم المدينة',                         type:'text'},
+      {id:'dt',  label:'تاريخ الوكالة',                hint:'',                                   type:'date'},
+    ],
+    template:`بسم الله الرحمن الرحيم\n\nعقد وكالة قضائية\n\nالمادة الأولى — أطراف العقد\n\nالطرف الأول (الموكِّل): {{cn}}\nرقم الهوية: {{cid}} — الجنسية: {{cnat}}\n\nالطرف الثاني (الوكيل — المحامي): {{ln}}\nرقم الترخيص المهني: {{ll}}\n\nالمادة الثانية — موضوع الوكالة\n\nيوكِّل الطرف الأول الطرفَ الثاني في تمثيله ونيابته أمام {{ct}} في الدعوى المتعلقة بـ:\n{{cs}}\n\nالمادة الثالثة — الصلاحيات\n\nيُخوَّل الوكيل بموجب هذه الوكالة بالصلاحيات الآتية:\n{{pw}}\n\nالمادة الرابعة — الأتعاب\n\nاتفق الطرفان على تحديد أتعاب المحاماة بمبلغ {{fe}} ريال سعودي لا غير،\nتُسدَّد بـ: {{pm}}\n\nالمادة الخامسة — النفاذ\n\nيسري هذا العقد من تاريخ توقيعه ولا ينتهي إلا بإتمام المهمة الموكلة.\n\nحُرِّر هذا العقد بـ {{lo}} بتاريخ {{dt}}\n\nتوقيع الموكِّل: .......................    توقيع الوكيل: .......................`,
+    content:'' },
+
+  { id:'dt2', icon:'⚔️', title:'مذكرة دفاع ابتدائية', category:'مذكرات', description:'مذكرة دفاع تُقدَّم في الجلسة الأولى رداً على الدعوى', isDefault:true, createdAt:new Date().toISOString(),
+    fields:[
+      {id:'court', label:'اسم المحكمة',               hint:'اسم المحكمة ودرجتها',                 type:'text'},
+      {id:'cnum',  label:'رقم الدعوى',                hint:'الرقم الرسمي للقضية',                 type:'text'},
+      {id:'yr',    label:'سنة الدعوى',                hint:'السنة الهجرية أو الميلادية',           type:'text'},
+      {id:'pl',    label:'اسم المدَّعي',              hint:'الطرف الأول في الدعوى',               type:'text'},
+      {id:'df',    label:'اسم المدَّعى عليه (موكلنا)',hint:'الاسم الكامل',                         type:'text'},
+      {id:'sess',  label:'تاريخ الجلسة',              hint:'',                                    type:'date'},
+      {id:'facts', label:'وقائع الدعوى',              hint:'ملخص وقائع الدعوى كما يراها الدفاع', type:'textarea'},
+      {id:'formal',label:'الدفوع الشكلية',            hint:'مثل: عدم الاختصاص / انعدام الصفة',   type:'textarea'},
+      {id:'subst', label:'الدفوع الموضوعية',          hint:'مناقشة أسس الدعوى من الناحية القانونية', type:'textarea'},
+      {id:'req',   label:'الطلبات الختامية',          hint:'ما يلتمسه المدَّعى عليه من المحكمة', type:'textarea'},
+      {id:'atty',  label:'اسم المحامي المقدِّم',      hint:'',                                    type:'text'},
+      {id:'dt',    label:'تاريخ المذكرة',             hint:'',                                    type:'date'},
+    ],
+    template:`بسم الله الرحمن الرحيم\n\nمذكرة دفاع ابتدائية\nمقدَّمة لـ: {{court}}\n\nرقم الدعوى: {{cnum}} لعام: {{yr}}\nالمدَّعي: {{pl}}\nالمدَّعى عليه: {{df}} (موكلنا)\nتاريخ الجلسة: {{sess}}\n\nأولاً: وقائع الدعوى\n{{facts}}\n\nثانياً: الدفوع الشكلية\n{{formal}}\n\nثالثاً: الدفوع الموضوعية\n{{subst}}\n\nرابعاً: الطلبات الختامية\nبناءً على ما تقدَّم، يلتمس المدَّعى عليه من المحكمة الموقرة:\n{{req}}\n\nمقدِّمه: المحامي {{atty}}\nالتاريخ: {{dt}}`,
+    content:'' },
+
+  { id:'dt3', icon:'⏱️', title:'طلب تأجيل جلسة', category:'طلبات', description:'طلب رسمي لتأجيل موعد الجلسة لسبب مقبول', isDefault:true, createdAt:new Date().toISOString(),
+    fields:[
+      {id:'court',   label:'اسم المحكمة',              hint:'اسم المحكمة',                          type:'text'},
+      {id:'dept',    label:'القسم / الدائرة',           hint:'رقم أو اسم الدائرة',                  type:'text'},
+      {id:'cnum',    label:'رقم الدعوى',               hint:'الرقم الرسمي للقضية',                  type:'text'},
+      {id:'party',   label:'اسم الموكِّل (المدَّعى عليه)', hint:'من ينوب عنه المحامي',             type:'text'},
+      {id:'sessdate',label:'تاريخ الجلسة المحددة',     hint:'',                                    type:'date'},
+      {id:'reason',  label:'سبب طلب التأجيل',          hint:'اذكر الأسباب بوضوح',                  type:'textarea'},
+      {id:'altdate', label:'التاريخ البديل المقترح',   hint:'أو اتركه فارغاً إن لم يُحدَّد',      type:'text', required:false},
+      {id:'atty',    label:'اسم المحامي',              hint:'',                                    type:'text'},
+      {id:'lic',     label:'رقم ترخيص المحامي',        hint:'',                                    type:'text'},
+      {id:'dt',      label:'تاريخ تقديم الطلب',        hint:'',                                    type:'date'},
+    ],
+    template:`بسم الله الرحمن الرحيم\n\nطلب تأجيل جلسة\n\nالمحكمة الموقرة / {{court}} — الدائرة: {{dept}}\n\nالقضية رقم: {{cnum}}\nالجلسة المحددة بتاريخ: {{sessdate}}\n\nأتقدم بهذا الطلب بصفتي محامياً ووكيلاً عن: {{party}}\n\nوأطلب من المحكمة الموقرة التفضل بتأجيل الجلسة المحددة في التاريخ المذكور، وذلك للأسباب الآتية:\n{{reason}}\n\nأقترح تحديد تاريخ بديل: {{altdate}}\n\nوعليه أرجو التكرم بالنظر في هذا الطلب وإصدار أمر التأجيل اللازم.\n\nمع خالص التقدير،\nالمحامي: {{atty}} — رقم الترخيص: {{lic}}\nالتاريخ: {{dt}}`,
+    content:'' },
+
+  { id:'dt4', icon:'⚖️', title:'عريضة دعوى مدنية', category:'طلبات', description:'صحيفة دعوى مدنية تُرفع ابتداءً أمام المحكمة المختصة', isDefault:true, createdAt:new Date().toISOString(),
+    fields:[
+      {id:'court', label:'المحكمة المختصة',            hint:'اسم المحكمة',                          type:'text'},
+      {id:'pln',   label:'اسم المدَّعي',               hint:'الاسم الكامل',                         type:'text'},
+      {id:'plid',  label:'رقم هوية المدَّعي',          hint:'رقم الهوية الوطنية',                   type:'text'},
+      {id:'dfn',   label:'اسم المدَّعى عليه',          hint:'الاسم الكامل',                         type:'text'},
+      {id:'dfid',  label:'رقم هوية المدَّعى عليه',     hint:'رقم الهوية إن تُوفِّر',                type:'text', required:false},
+      {id:'atty',  label:'اسم المحامي الوكيل',         hint:'',                                    type:'text'},
+      {id:'subj',  label:'موضوع الدعوى',               hint:'العنوان المختصر للدعوى',               type:'text'},
+      {id:'facts', label:'وقائع الدعوى',               hint:'السرد التفصيلي للوقائع',              type:'textarea'},
+      {id:'basis', label:'الأسانيد القانونية',         hint:'المواد والأنظمة التي تستند إليها',    type:'textarea'},
+      {id:'req',   label:'طلبات المدَّعي',             hint:'اذكر الطلبات مرقَّمةً',               type:'textarea'},
+      {id:'docs',  label:'المستندات المرفقة',           hint:'قائمة المستندات',                    type:'textarea', required:false},
+      {id:'dt',    label:'تاريخ تقديم الدعوى',         hint:'',                                    type:'date'},
+    ],
+    template:`بسم الله الرحمن الرحيم\n\nعريضة دعوى مدنية\n\nإلى: {{court}}\n\nالمدَّعي: {{pln}} — هوية رقم: {{plid}}\nبوكالة المحامي: {{atty}}\n\nالمدَّعى عليه: {{dfn}} — هوية رقم: {{dfid}}\n\nأولاً: موضوع الدعوى\n{{subj}}\n\nثانياً: وقائع الدعوى\n{{facts}}\n\nثالثاً: الأسانيد القانونية\n{{basis}}\n\nرابعاً: الطلبات\n{{req}}\n\nخامساً: المستندات المرفقة\n{{docs}}\n\nمقدِّمها: {{atty}}\nالتاريخ: {{dt}}`,
+    content:'' },
+
+  { id:'dt5', icon:'✉️', title:'خطاب لموكل', category:'خطابات', description:'خطاب متابعة رسمي يُحيط الموكل بمستجدات قضيته', isDefault:true, createdAt:new Date().toISOString(),
+    fields:[
+      {id:'cname',    label:'اسم الموكل',               hint:'الاسم الكامل للموكل',                 type:'text'},
+      {id:'cnum',     label:'رقم القضية',               hint:'الرقم الرسمي',                        type:'text'},
+      {id:'court',    label:'اسم المحكمة',              hint:'المحكمة التي تُنظَر أمامها القضية',  type:'text'},
+      {id:'status',   label:'الوضع الراهن للقضية',      hint:'ما آلت إليه القضية حتى الآن',       type:'textarea'},
+      {id:'actions',  label:'الإجراءات المتخذة',        hint:'ما قام به المكتب من خطوات',          type:'textarea'},
+      {id:'nextsteps',label:'الخطوات القادمة',           hint:'ما سيُتَّخذ من إجراءات',            type:'textarea'},
+      {id:'atty',     label:'اسم المحامي',              hint:'',                                   type:'text'},
+      {id:'phone',    label:'رقم هاتف المكتب',          hint:'',                                   type:'text'},
+      {id:'dt',       label:'تاريخ الخطاب',             hint:'',                                   type:'date'},
+    ],
+    template:`بسم الله الرحمن الرحيم\n\nالسيد/السيدة {{cname}} المحترم/المحترمة،\n\nتحية طيبة وبعد،\n\nنودّ إحاطتكم علماً بآخر مستجدات قضيتكم رقم {{cnum}} أمام {{court}}:\n\nأولاً: الوضع الراهن\n{{status}}\n\nثانياً: الإجراءات المتخذة\n{{actions}}\n\nثالثاً: الخطوات القادمة\n{{nextsteps}}\n\nنرجو من سيادتكم التواصل معنا في حال وجود أي استفسار، ونحن على أتم الاستعداد لخدمتكم.\n\nوتقبلوا خالص التحيات،\n\nالمحامي: {{atty}}\nالهاتف: {{phone}}\nالتاريخ: {{dt}}`,
+    content:'' },
 ];
 
 let templates   = JSON.parse(localStorage.getItem('tm_tpls') || 'null') || DEFAULT_TPLS.map(t=>({...t}));
@@ -4410,9 +4729,14 @@ function saveTemplates() {
   fsSave('templates', templates);
 }
 
+function getEffectiveTpl(id) {
+  const builtin = DEFAULT_TPLS.find(t=>t.id===id);
+  if (builtin && builtin.fields) return builtin;
+  return templates.find(t=>t.id===id) || null;
+}
+
 // ── RENDER ────────────────────────────────
 function renderTemplates() {
-  // Category filter
   const usedCats=[...new Set(templates.map(t=>t.category).filter(Boolean))];
   const filterEl=document.getElementById('tpl-cat-filter');
   filterEl.innerHTML=`<div class="cf-chip${tplFilterCat==='all'?' on':''}" onclick="setTplFilter('all')">الكل (${templates.length})</div>`
@@ -4421,20 +4745,33 @@ function renderTemplates() {
   let list=tplFilterCat==='all'?[...templates]:templates.filter(t=>t.category===tplFilterCat);
   const catColors={عقود:'rgba(108,99,255,0.1)',مذكرات:'rgba(43,174,138,0.1)',طلبات:'rgba(224,155,45,0.1)',خطابات:'rgba(224,64,79,0.1)',مخصص:'rgba(0,0,0,0.06)'};
   const catTx={عقود:'var(--prl)',مذكرات:'var(--ok)',طلبات:'var(--warn)',خطابات:'var(--err)',مخصص:'var(--txm)'};
-  document.getElementById('tpl-grid').innerHTML = list.map(t=>`
-    <div class="tpl-card" onclick="openTplView('${t.id}')">
-      <div style="display:flex;align-items:flex-start;gap:8px">
-        <div style="flex:1">
-          <div class="tpl-title">${esc(t.title)}</div>
+  document.getElementById('tpl-grid').innerHTML = list.map(t=>{
+    const eff = getEffectiveTpl(t.id);
+    const hasWiz = eff && eff.fields && eff.fields.length > 0;
+    const preview = eff ? (eff.content||eff.template||'').substring(0,100) : '';
+    const fieldCount = hasWiz ? `<span class="ct-card-fields">${eff.fields.length} سؤال</span>` : '';
+    return `
+    <div class="ct-card">
+      <div class="ct-card-icon">${esc(eff?.icon||'📄')}</div>
+      <div style="flex:1;min-width:0">
+        <div class="ct-card-title">${esc(t.title)}</div>
+        <div class="ct-card-desc">${esc(eff?.description||preview.substring(0,80))}</div>
+      </div>
+      <div class="ct-card-meta">
+        <div style="display:flex;align-items:center;gap:7px">
           <span class="tpl-cat-badge" style="background:${catColors[t.category]||'rgba(0,0,0,0.06)'};color:${catTx[t.category]||'var(--txm)'}">${esc(t.category||'')}</span>
+          ${fieldCount}
         </div>
-        <div style="display:flex;gap:4px;flex-shrink:0">
-          <button class="tbtn" onclick="event.stopPropagation();openTplModal('${t.id}')" title="تعديل">✏️</button>
-          <button class="tbtn del" onclick="event.stopPropagation();deleteTpl('${t.id}')" title="حذف">🗑️</button>
+        <div style="display:flex;gap:5px;align-items:center">
+          ${!t.isDefault?`<button class="tbtn" onclick="openTplModal('${t.id}')" title="تعديل">✏️</button>`:''}
+          <button class="tbtn del" onclick="deleteTpl('${t.id}')" title="حذف">🗑️</button>
+          ${hasWiz
+            ? `<button class="btn btn-pr" onclick="startTplWizard('${t.id}')" style="font-size:12px;padding:6px 13px">استخدام ←</button>`
+            : `<button class="btn btn-sm" onclick="openTplView('${t.id}')" style="font-size:12px;padding:6px 13px">عرض</button>`}
         </div>
       </div>
-      <div class="tpl-preview">${esc(t.content.substring(0,120))}...</div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 function setTplFilter(cat) { tplFilterCat=cat; renderTemplates(); }
@@ -4638,7 +4975,7 @@ function deleteContractTpl(id) {
 }
 
 // ── WIZARD STATE ──────────────────────────
-let wz = { tpl:null, step:0, answers:{}, direction:1 };
+let wz = { tpl:null, step:0, answers:{}, direction:1, type:'contract' };
 
 // ── RENDER CONTRACTS PAGE ─────────────────
 function renderContracts() {
@@ -4691,9 +5028,19 @@ function filterCtCat(cat) {
 function startWizard(tplId) {
   const tpl = allContractTemplates().find(t=>t.id===tplId);
   if (!tpl) return;
-  wz = { tpl, step:0, answers:{}, direction:1 };
+  wz = { tpl, step:0, answers:{}, direction:1, type:'contract' };
   document.getElementById('wz-title').textContent = tpl.title;
-  document.getElementById('wz-cat').textContent   = tpl.icon + ' ' + tpl.category;
+  document.getElementById('wz-cat').textContent   = (tpl.icon||'📄') + ' ' + tpl.category;
+  renderWizardStep();
+  document.getElementById('wz-modal').classList.add('show');
+}
+
+function startTplWizard(tplId) {
+  const tpl = getEffectiveTpl(tplId);
+  if (!tpl || !tpl.fields) return;
+  wz = { tpl, step:0, answers:{}, direction:1, type:'template' };
+  document.getElementById('wz-title').textContent = tpl.title;
+  document.getElementById('wz-cat').textContent   = (tpl.icon||'📄') + ' ' + tpl.category;
   renderWizardStep();
   document.getElementById('wz-modal').classList.add('show');
 }
@@ -4715,7 +5062,9 @@ function renderWizardStep() {
 
   // Back button
   document.getElementById('wz-back').style.display = step > 0 ? '' : 'none';
-  document.getElementById('wz-next').textContent = step === total-1 ? '✅ إنشاء العقد' : 'التالي ←';
+  document.getElementById('wz-next').textContent = step === total-1
+    ? (wz.type==='template' ? '✅ إنشاء المستند' : '✅ إنشاء العقد')
+    : 'التالي ←';
 
   // Optional hint
   const hint = field.required===false ? '(اختياري)' : '';
@@ -4763,9 +5112,9 @@ function wzNext() {
     wz.step++;
     renderWizardStep();
   } else {
-    // Generate contract
     closeWizard();
-    showContractPreview(wz.tpl, wz.answers);
+    if (wz.type === 'template') showTplPreview(wz.tpl, wz.answers);
+    else showContractPreview(wz.tpl, wz.answers);
   }
 }
 
@@ -4793,10 +5142,22 @@ function renderContractText(tpl, answers) {
 }
 
 function showContractPreview(tpl, answers) {
-  currentContractData = { tpl, answers };
+  currentContractData = { tpl, answers, type:'contract' };
   const content = renderContractText(tpl, answers);
-  document.getElementById('ctp-title').textContent = tpl.title;
-  document.getElementById('ctp-meta').textContent  = `${tpl.icon} ${tpl.category}  •  ${new Date().toLocaleDateString('ar-SA')}`;
+  document.getElementById('ctp-title').textContent = 'العقد النهائي';
+  document.getElementById('ctp-meta').textContent  = `${tpl.icon||'📄'} ${tpl.title}  •  ${new Date().toLocaleDateString('ar-SA')}`;
+  document.getElementById('ctp-content').textContent = content;
+  document.getElementById('ct-save-form').style.display = 'none';
+  document.getElementById('ct-save-title').value = tpl.title + ' — ' + new Date().toLocaleDateString('ar-SA');
+  buildClientDropdown('ct-save-client', null);
+  document.getElementById('ct-preview-modal').classList.add('show');
+}
+
+function showTplPreview(tpl, answers) {
+  currentContractData = { tpl, answers, type:'template' };
+  const content = renderContractText(tpl, answers);
+  document.getElementById('ctp-title').textContent = 'المستند المُعبَّأ';
+  document.getElementById('ctp-meta').textContent  = `${tpl.icon||'📄'} ${tpl.title}  •  ${new Date().toLocaleDateString('ar-SA')}`;
   document.getElementById('ctp-content').textContent = content;
   document.getElementById('ct-save-form').style.display = 'none';
   document.getElementById('ct-save-title').value = tpl.title + ' — ' + new Date().toLocaleDateString('ar-SA');
@@ -4824,7 +5185,8 @@ function printContract() {
 async function copyContractText() {
   if (!currentContractData) return;
   const text = renderContractText(currentContractData.tpl, currentContractData.answers);
-  try { await navigator.clipboard.writeText(text); toast('📋 تم نسخ نص العقد'); }
+  const label = currentContractData.type==='template' ? 'المستند' : 'العقد';
+  try { await navigator.clipboard.writeText(text); toast(`📋 تم نسخ نص ${label}`); }
   catch { toast('⚠️ تعذّر النسخ'); }
 }
 

@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "PowerShell(Set-Location \"C:\\\\Users\\\\shada\\\\task-manager\"; \\(Get-Location\\).Path)"
+      "PowerShell(Set-Location \"C:\\\\Users\\\\shada\\\\task-manager\"; \\(Get-Location\\).Path)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\shada\\\\task-manager\" -Recurse -Force)",
+      "Bash(Select-Object -First 100)",
+      "Bash(Format-Table FullName, PSIsContainer)"
     ]
   }
 }
