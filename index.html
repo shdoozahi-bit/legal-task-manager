@@ -1677,7 +1677,7 @@ let editId   = null, selPriority = 'high', swReady = false;
 let checkTimer = null, cntTimer = null;
 let clFormItems = [];
 let expandedNotes = new Set();
-let calYear, calMonth;
+let calYear = new Date().getFullYear(), calMonth = new Date().getMonth();
 let calDayDate = null;
 let calMode = 'gregorian';
 let calHijriYear = null, calHijriMonth = null;
@@ -2550,6 +2550,7 @@ function _buildCalCells(cells, today) {
 }
 
 function renderCalendarGregorian() {
+  if (calYear == null || calMonth == null) { calYear=new Date().getFullYear(); calMonth=new Date().getMonth(); }
   document.getElementById('cal-title').textContent=`${MONTHS[calMonth]} ${calYear}`;
   document.getElementById('cal-days-hd').innerHTML=DDAYS.map(d=>`<div class="cal-dn">${d}</div>`).join('');
   const first=new Date(calYear,calMonth,1).getDay();
@@ -2568,6 +2569,7 @@ function renderCalendarGregorian() {
 }
 
 function renderCalendarHijri() {
+  if (!calHijriYear || !calHijriMonth) { setCalMode('gregorian'); return; }
   const firstGreg=hijriToGregorianDate(calHijriYear,calHijriMonth,1);
   if(!firstGreg){toast('⚠️ التقويم الهجري غير مدعوم في هذا المتصفح');setCalMode('gregorian');return;}
   // Determine month length (29 or 30)
