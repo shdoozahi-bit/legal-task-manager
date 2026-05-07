@@ -391,7 +391,7 @@ textarea.fc{resize:vertical;min-height:65px}
 .cal-mode-btn{padding:5px 15px;border-radius:6px;border:none;background:transparent;color:var(--txm);cursor:pointer;font-size:14px;font-weight:700;font-family:'Tajawal',sans-serif;transition:all .2s}
 .cal-mode-btn.on{background:var(--pr);color:#fff}
 /* ── Full-screen calendar view ── */
-#view-calendar{display:flex;flex-direction:column;height:calc(100vh - 76px - 22px);margin:-22px;margin-top:0;padding:14px 18px 10px;box-sizing:border-box;overflow:hidden}
+#view-calendar.on{display:flex;flex-direction:column;height:calc(100vh - 76px - 22px);margin:-22px;margin-top:0;padding:14px 18px 10px;box-sizing:border-box;overflow:hidden}
 #view-calendar .ph{flex-shrink:0;margin-bottom:4px;padding:0}
 #view-calendar .ph h2{font-size:17px;margin:0}
 #view-calendar .cal-legend{flex-shrink:0;margin-bottom:8px}
@@ -625,8 +625,8 @@ textarea.fc{resize:vertical;min-height:65px}
   .sg{grid-template-columns:repeat(2,1fr)}.cb-grid{grid-template-columns:1fr}
   .cal-grid,.cal-days-hd{gap:2px}.cal-day{min-height:60px!important;padding:5px!important}
   .cal-task-lbl{font-size:9px!important}
-  #view-calendar{margin:0;padding:8px;height:auto;overflow:visible}
-  #view-calendar .cal-grid{grid-auto-rows:unset}
+  #view-calendar.on{margin:0;padding:8px;height:auto;overflow:visible}
+  #view-calendar.on .cal-grid{grid-auto-rows:unset}
   .pomo{left:10px;bottom:78px;right:10px;min-width:unset}
   .topbar-title{font-size:13px}
   .tb-btn span:not(.tb-tg-dot){display:none}
@@ -1671,6 +1671,7 @@ function countdown(task) {
 function init() {
   initTheme();
   migrateTasks();
+  migrateDefaultTpls();
   migrateLegacyDeadlines();
   migrateSessAndDl();
   initTgDefaults();
@@ -4729,6 +4730,21 @@ function saveTemplates() {
   fsSave('templates', templates);
 }
 
+// إصدار القوالب المدمجة — ارفع هذا الرقم عند تغيير DEFAULT_TPLS
+const BUILTIN_TPLS_VERSION = 2;
+
+function migrateDefaultTpls() {
+  const builtinIds = new Set(DEFAULT_TPLS.map(t => t.id));
+  // قالب قديم = له id مدمج ولكن ليس فيه fields
+  const hasOld = templates.some(t => builtinIds.has(t.id) && (!t.fields || !t.fields.length));
+  if (!hasOld) return;
+  // احتفظ فقط بالقوالب المخصصة (التي أضافها المستخدم)
+  const customs = templates.filter(t => !builtinIds.has(t.id));
+  templates = [...DEFAULT_TPLS.map(t => ({...t})), ...customs];
+  localStorage.setItem('tm_tpls', JSON.stringify(templates));
+  fsSave('templates', templates); // حدّث Firebase بالإصدار الجديد
+}
+
 function getEffectiveTpl(id) {
   const builtin = DEFAULT_TPLS.find(t=>t.id===id);
   if (builtin && builtin.fields) return builtin;
@@ -5669,7 +5685,7 @@ function fsApplyLocal(key, data) {
       case 'deadlines': deadlines = data; localStorage.setItem('tm_deadlines', JSON.stringify(data)); break;
       case 'clients':   clients   = data; localStorage.setItem('tm_clients',   JSON.stringify(data)); break;
       case 'cases':     cases     = data; localStorage.setItem('tm_cases',     JSON.stringify(data)); break;
-      case 'templates':         templates              = data; localStorage.setItem('tm_tpls',       JSON.stringify(data)); break;
+      case 'templates':         templates = data; localStorage.setItem('tm_tpls', JSON.stringify(data)); break;
       case 'contractTemplates': customContractTemplates = data; localStorage.setItem('tm_ct_custom',  JSON.stringify(data)); break;
       case 'savedContracts':    savedContracts          = data; localStorage.setItem('tm_saved_cts',  JSON.stringify(data)); break;
     }
@@ -5685,7 +5701,7 @@ function fsRefreshUI(key) {
   if (key === 'sessions'  && curView === 'sessions')  renderSessions();
   if (key === 'deadlines' && curView === 'deadlines') renderDeadlines();
   if (key === 'clients'   && curView === 'clients')   renderClients();
-  if (key === 'templates'         && curView === 'templates')  renderTemplates();
+  if (key === 'templates') { migrateDefaultTpls(); if (curView === 'templates') renderTemplates(); }
   if (key === 'contractTemplates' && curView === 'contracts')  renderContracts();
   if (key === 'savedContracts'    && curView === 'contracts')  renderSavedContracts();
   if (curView === 'dashboard') renderDashboard();
