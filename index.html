@@ -25,8 +25,18 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--tx);min-h
 .sb-logo{padding:18px 16px;border-bottom:1px solid var(--bd)}
 .sb-logo h1{font-size:17px;font-weight:800;background:linear-gradient(135deg,var(--pr),var(--sc));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .sb-logo p{font-size:11px;color:var(--txm);margin-top:2px}
-.sb-nav{padding:10px 8px;flex:1}
+.sb-nav{padding:8px 6px;flex:1}
 .nav-sec{font-size:10px;color:var(--txm);padding:8px 8px 3px;margin-top:6px;letter-spacing:.8px}
+/* ── Accordion groups ── */
+.sb-group{border-radius:10px;overflow:hidden;margin-bottom:4px}
+.sb-group-hd{display:flex;align-items:center;gap:8px;padding:9px 10px;cursor:pointer;border-radius:10px;font-size:13px;font-weight:700;color:var(--tx);transition:background .18s;user-select:none;position:relative}
+.sb-group-hd:hover{background:rgba(108,99,255,0.07)}
+.sb-group-hd .sb-g-ic{font-size:15px;flex-shrink:0}
+.sb-group-hd .sb-g-lbl{flex:1}
+.sb-group-hd .sb-g-arr{font-size:10px;color:var(--txm);transition:transform .22s;flex-shrink:0}
+.sb-group-hd.open .sb-g-arr{transform:rotate(90deg)}
+.sb-group-body{display:none;padding:2px 0 4px 0}
+.sb-group-body.open{display:block}
 .ni{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:9px;cursor:pointer;transition:all .2s;margin-bottom:1px;font-size:13px;color:var(--tx)}
 .ni:hover{background:rgba(108,99,255,0.07)}
 .ni.on{background:linear-gradient(135deg,rgba(108,99,255,0.13),rgba(255,101,132,0.06));color:var(--prl);font-weight:600}
@@ -660,42 +670,90 @@ textarea.fc{resize:vertical;min-height:65px}
 
 <!-- SIDEBAR -->
 <aside class="sb">
-  <div class="sb-logo" style="padding:12px 14px">
+  <div class="sb-logo" style="padding:10px 14px 8px">
     <p id="today-date" style="font-size:11px;color:var(--txm)"></p>
   </div>
   <nav class="sb-nav">
-    <div class="nav-sec">العروض</div>
-    <div class="ni on" onclick="setView('dashboard')" id="ni-dashboard"><span class="ic">🧠</span>لوحة التحكم</div>
-    <div class="ni" onclick="setView('home')" id="ni-home"><span class="ic">📋</span>المهام<span class="ct" id="ct-all-sb">0</span></div>
-    <div class="ni" onclick="setView('stats')" id="ni-stats"><span class="ic">📊</span>الإحصائيات</div>
-    <div class="ni" onclick="setView('calendar')" id="ni-calendar"><span class="ic">📆</span>التقويم</div>
-    <div class="ni" onclick="setView('archive')" id="ni-archive"><span class="ic">🗃️</span>الأرشيف<span class="ct" id="ct-arch">0</span></div>
-    <div class="nav-sec">⚖️ أدوات المحامي</div>
-    <div class="ni" onclick="setView('clients')" id="ni-clients"><span class="ic">👥</span>الموكلون<span class="ct" id="ct-clients">0</span></div>
-    <div class="ni" onclick="setView('sessions')" id="ni-sessions"><span class="ic">🏛️</span>الجلسات<span class="ct" id="ct-sess">0</span></div>
-    <div class="ni" onclick="setView('deadlines')" id="ni-deadlines"><span class="ic">📐</span>المواعيد القانونية</div>
-    <div class="ni" onclick="setView('templates')" id="ni-templates"><span class="ic">📄</span>القوالب القانونية</div>
-    <div class="ni" onclick="setView('contracts')" id="ni-contracts"><span class="ic">📝</span>إنشاء العقود</div>
-    <div class="nav-sec">التصنيفات</div>
-    <div class="ni" onclick="setView('home');switchCat('all')" id="ni-all"><span class="ic">🏠</span>الكل<span class="ct" id="ct-all">0</span></div>
-    <div class="ni" onclick="setView('home');switchCat('once')" id="ni-once"><span class="ic">📌</span>مرة واحدة<span class="ct" id="ct-once">0</span></div>
-    <div class="nav-sec">⚖️ المهام القانونية</div>
-    <div class="ni" onclick="setView('home');switchLegalCat('_legal')" id="ni-legal-all"><span class="ic">📋</span>جميع القانونية<span class="ct" id="ct-legal-all">0</span></div>
-    <div class="ni" onclick="setView('home');switchLegalCat('لوائح دعوى')" id="ni-legal-0"><span class="ic">📜</span>لوائح دعوى<span class="ct" id="ct-legal-0">0</span></div>
-    <div class="ni" onclick="setView('home');switchLegalCat('مذكرات جوابية')" id="ni-legal-1"><span class="ic">📄</span>مذكرات جوابية<span class="ct" id="ct-legal-1">0</span></div>
-    <div class="ni" onclick="setView('home');switchLegalCat('مذكرات اعتراضية')" id="ni-legal-2"><span class="ic">📃</span>مذكرات اعتراضية<span class="ct" id="ct-legal-2">0</span></div>
-    <div class="ni" onclick="setView('home');switchLegalCat('إخطارات وخطابات وغيرها')" id="ni-legal-3"><span class="ic">✉️</span>إخطارات وخطابات<span class="ct" id="ct-legal-3">0</span></div>
-    <div class="ni" onclick="setView('home');switchLegalCat('تقديم طلبات تنفيذ')" id="ni-legal-4"><span class="ic">⚖️</span>طلبات تنفيذ<span class="ct" id="ct-legal-4">0</span></div>
-    <div class="ni" onclick="setView('home');switchLegalCat('مراجعات ومتابعات')" id="ni-legal-5"><span class="ic">🔍</span>مراجعات ومتابعات<span class="ct" id="ct-legal-5">0</span></div>
-    <div class="nav-sec">أدوات</div>
-    <div class="ni" onclick="openSubcatModal()"><span class="ic">🏷️</span>الفئات الفرعية</div>
-    <div class="ni" onclick="clearCompleted()"><span class="ic">🗑️</span>حذف المكتملة</div>
-    <div class="nav-sec">بيانات</div>
-    <div class="ni" onclick="exportData()"><span class="ic">⬇️</span>تصدير JSON</div>
-    <div class="ni" onclick="document.getElementById('imp-input').click()"><span class="ic">⬆️</span>استيراد JSON</div>
-    <div class="ni" onclick="fsPushAll()" title="رفع كل البيانات لـ Firebase"><span class="ic">☁️</span>رفع للسحابة</div>
-    <div class="ni" onclick="shareURL()"><span class="ic">🔗</span>مشاركة الرابط</div>
-    <div class="sw-status" id="sw-status">🔔 جارٍ تهيئة الإشعارات...</div>
+
+    <!-- ── بداية ── -->
+    <div class="sb-group" id="sbg-start">
+      <div class="sb-group-hd open" onclick="toggleSbGroup('sbg-start')">
+        <span class="sb-g-ic">🏠</span>
+        <span class="sb-g-lbl">بداية</span>
+        <span class="sb-g-arr">›</span>
+      </div>
+      <div class="sb-group-body open">
+        <div class="ni on" onclick="setView('dashboard')" id="ni-dashboard"><span class="ic">🧠</span>لوحة التحكم</div>
+        <div class="ni" onclick="setView('calendar')" id="ni-calendar"><span class="ic">📆</span>التقويم</div>
+        <div class="ni" onclick="setView('home');switchCat('all')" id="ni-home"><span class="ic">📋</span>كل المهام<span class="ct" id="ct-all-sb">0</span></div>
+      </div>
+    </div>
+
+    <!-- ── أدوات المحامي ── -->
+    <div class="sb-group" id="sbg-lawyer">
+      <div class="sb-group-hd open" onclick="toggleSbGroup('sbg-lawyer')">
+        <span class="sb-g-ic">⚖️</span>
+        <span class="sb-g-lbl">أدوات المحامي</span>
+        <span class="sb-g-arr">›</span>
+      </div>
+      <div class="sb-group-body open">
+        <div class="ni" onclick="setView('clients')" id="ni-clients"><span class="ic">👥</span>الموكلون<span class="ct" id="ct-clients">0</span></div>
+        <div class="ni" onclick="setView('sessions')" id="ni-sessions"><span class="ic">🏛️</span>الجلسات<span class="ct" id="ct-sess">0</span></div>
+        <div class="ni" onclick="setView('deadlines')" id="ni-deadlines"><span class="ic">📐</span>المواعيد القانونية</div>
+        <div class="ni" onclick="setView('templates')" id="ni-templates"><span class="ic">📄</span>القوالب القانونية</div>
+        <div class="ni" onclick="setView('contracts')" id="ni-contracts"><span class="ic">📝</span>إنشاء العقود</div>
+      </div>
+    </div>
+
+    <!-- ── المهام القانونية ── -->
+    <div class="sb-group" id="sbg-legal">
+      <div class="sb-group-hd open" onclick="toggleSbGroup('sbg-legal')">
+        <span class="sb-g-ic">📋</span>
+        <span class="sb-g-lbl">المهام القانونية</span>
+        <span class="sb-g-arr">›</span>
+      </div>
+      <div class="sb-group-body open">
+        <div class="ni" onclick="setView('home');switchLegalCat('_legal')" id="ni-legal-all"><span class="ic">📋</span>جميع القانونية<span class="ct" id="ct-legal-all">0</span></div>
+        <div class="ni" onclick="setView('home');switchLegalCat('لوائح دعوى')" id="ni-legal-0"><span class="ic">📜</span>لوائح دعوى<span class="ct" id="ct-legal-0">0</span></div>
+        <div class="ni" onclick="setView('home');switchLegalCat('مذكرات جوابية')" id="ni-legal-1"><span class="ic">📄</span>مذكرات جوابية<span class="ct" id="ct-legal-1">0</span></div>
+        <div class="ni" onclick="setView('home');switchLegalCat('مذكرات اعتراضية')" id="ni-legal-2"><span class="ic">📃</span>مذكرات اعتراضية<span class="ct" id="ct-legal-2">0</span></div>
+        <div class="ni" onclick="setView('home');switchLegalCat('إخطارات وخطابات وغيرها')" id="ni-legal-3"><span class="ic">✉️</span>إخطارات وخطابات<span class="ct" id="ct-legal-3">0</span></div>
+        <div class="ni" onclick="setView('home');switchLegalCat('تقديم طلبات تنفيذ')" id="ni-legal-4"><span class="ic">⚖️</span>طلبات تنفيذ<span class="ct" id="ct-legal-4">0</span></div>
+        <div class="ni" onclick="setView('home');switchLegalCat('مراجعات ومتابعات')" id="ni-legal-5"><span class="ic">🔍</span>مراجعات ومتابعات<span class="ct" id="ct-legal-5">0</span></div>
+      </div>
+    </div>
+
+    <!-- ── أدوات ── -->
+    <div class="sb-group" id="sbg-tools">
+      <div class="sb-group-hd" onclick="toggleSbGroup('sbg-tools')">
+        <span class="sb-g-ic">🛠️</span>
+        <span class="sb-g-lbl">أدوات</span>
+        <span class="sb-g-arr">›</span>
+      </div>
+      <div class="sb-group-body">
+        <div class="ni" onclick="setView('stats')" id="ni-stats"><span class="ic">📊</span>الإحصائيات</div>
+        <div class="ni" onclick="setView('archive')" id="ni-archive"><span class="ic">🗃️</span>الأرشيف<span class="ct" id="ct-arch">0</span></div>
+        <div class="ni" onclick="openSubcatModal()"><span class="ic">🏷️</span>الفئات الفرعية</div>
+        <div class="ni" onclick="clearCompleted()"><span class="ic">🗑️</span>حذف المكتملة</div>
+      </div>
+    </div>
+
+    <!-- ── بيانات ── -->
+    <div class="sb-group" id="sbg-data">
+      <div class="sb-group-hd" onclick="toggleSbGroup('sbg-data')">
+        <span class="sb-g-ic">💾</span>
+        <span class="sb-g-lbl">بيانات</span>
+        <span class="sb-g-arr">›</span>
+      </div>
+      <div class="sb-group-body">
+        <div class="ni" onclick="exportData()"><span class="ic">⬇️</span>تصدير JSON</div>
+        <div class="ni" onclick="document.getElementById('imp-input').click()"><span class="ic">⬆️</span>استيراد JSON</div>
+        <div class="ni" onclick="fsPushAll()"><span class="ic">☁️</span>رفع للسحابة</div>
+        <div class="ni" onclick="shareURL()"><span class="ic">🔗</span>مشاركة الرابط</div>
+      </div>
+    </div>
+
+    <div class="sw-status" id="sw-status" style="margin-top:8px">🔔 جارٍ تهيئة الإشعارات...</div>
   </nav>
 </aside>
 
@@ -910,11 +968,13 @@ textarea.fc{resize:vertical;min-height:65px}
   <!-- TEMPLATES VIEW -->
   <div class="view" id="view-templates">
     <div class="ph">
-      <div class="ph-left"><h2>📄 القوالب القانونية</h2><p>قوالب جاهزة وقوالب مخصصة</p></div>
-      <button class="btn btn-pr" onclick="openTplModal()">＋ إضافة قالب</button>
+      <div class="ph-left"><h2>📄 القوالب القانونية</h2><p>قوالب احترافية وتعبئة تفاعلية خطوة بخطوة</p></div>
+      <button class="btn btn-pr" onclick="openCustomTplEditor()">＋ قالب مخصص</button>
     </div>
     <div class="cat-filter-bar" id="tpl-cat-filter"></div>
-    <div class="tpl-grid" id="tpl-grid"></div>
+    <div class="ct-grid" id="tpl-grid"></div>
+    <div class="sec-title">📁 المستندات المحفوظة</div>
+    <div id="saved-tpl-docs-list"></div>
   </div>
 
 </main>
@@ -1182,45 +1242,37 @@ textarea.fc{resize:vertical;min-height:65px}
   </div>
 </div>
 
-<!-- TEMPLATE MODAL (Add/Edit) -->
-<div class="mo" id="tpl-modal">
+<!-- CUSTOM TEMPLATE EDITOR MODAL -->
+<div class="mo" id="custom-tpl-modal">
   <div class="md" style="max-width:600px">
-    <div class="mh"><div class="mtt" id="tpl-modal-title">إضافة قالب</div><button class="mc2" onclick="closeTplModal()">✕</button></div>
-    <form onsubmit="saveTpl(event)">
-      <div class="fr">
-        <div class="fg"><label class="fl">عنوان القالب *</label><input type="text" class="fc" id="tpl-title" required placeholder="عقد وكالة قضائية..."></div>
-        <div class="fg"><label class="fl">التصنيف</label>
-          <select class="fc" id="tpl-cat">
-            <option value="عقود">عقود</option>
-            <option value="مذكرات">مذكرات</option>
-            <option value="طلبات">طلبات</option>
-            <option value="خطابات">خطابات</option>
-            <option value="مخصص">مخصص</option>
-          </select></div>
-      </div>
-      <div class="fg"><label class="fl">محتوى القالب *</label>
-        <textarea class="fc" id="tpl-content" required placeholder="اكتب محتوى القالب هنا..." style="min-height:200px;direction:rtl;font-size:13px;line-height:1.8"></textarea></div>
-      <button type="submit" class="bs" id="tpl-submit">💾 حفظ القالب</button>
-    </form>
-  </div>
-</div>
-
-<!-- TEMPLATE VIEW MODAL -->
-<div class="mo" id="tpl-view-modal">
-  <div class="md" style="max-width:600px">
-    <div class="mh">
-      <div class="mtt" id="tplv-title"></div>
-      <div style="display:flex;gap:7px">
-        <button class="mc2" onclick="copyTpl()" title="نسخ">📋</button>
-        <button class="mc2" id="tplv-edit-btn" onclick="editCurrentTpl()" title="تعديل">✏️</button>
-        <button class="mc2" onclick="closeTplView()">✕</button>
+    <div class="mh"><div class="mtt" id="ctp-modal-title">قالب قانوني مخصص</div><button class="mc2" onclick="closeCustomTplEditor()">✕</button></div>
+    <div class="fr">
+      <div class="fg"><label class="fl">اسم القالب *</label><input type="text" class="fc" id="ctp-title-inp" placeholder="مذكرة استئناف..."></div>
+      <div class="fg"><label class="fl">التصنيف</label>
+        <select class="fc" id="ctp-cat-inp">
+          <option value="عقود">عقود</option><option value="مذكرات">مذكرات</option>
+          <option value="طلبات">طلبات</option><option value="خطابات">خطابات</option>
+          <option value="مخصص">مخصص</option>
+        </select></div>
+    </div>
+    <div class="fg">
+      <label class="fl">الحقول (الأسئلة التفاعلية)</label>
+      <div id="ctp-fields-list"></div>
+      <div style="display:flex;gap:7px;margin-top:7px">
+        <input type="text" class="fc" id="ctp-f-label" placeholder="سؤال / تسمية الحقل..." style="flex:1">
+        <select class="fc" id="ctp-f-type" style="width:110px">
+          <option value="text">نص</option><option value="date">تاريخ</option>
+          <option value="number">رقم</option><option value="textarea">نص طويل</option>
+        </select>
+        <button type="button" class="btn btn-sm" onclick="addCtpField()" style="white-space:nowrap">＋</button>
       </div>
     </div>
-    <div style="margin-bottom:10px;display:flex;align-items:center;gap:8px">
-      <span id="tplv-cat-badge" class="tpl-cat-badge"></span>
-      <button class="btn btn-sm" onclick="copyTpl()" style="font-size:11px;padding:5px 12px">📋 نسخ النص</button>
+    <div class="fg">
+      <label class="fl">نص القالب (استخدم المتغيرات للإدراج)</label>
+      <div class="var-chips" id="ctp-vars-row"><span style="font-size:11px;color:var(--txm)">أضف حقولاً لتظهر المتغيرات هنا</span></div>
+      <textarea class="fc" id="ctp-template-inp" style="min-height:160px;direction:rtl;font-size:13px;line-height:1.9" placeholder="اكتب نص القالب وضع المتغيرات بالشكل {{variable_key}}..."></textarea>
     </div>
-    <div class="tpl-content-box" id="tplv-content"></div>
+    <button class="bs" onclick="saveCustomTpl()">💾 حفظ القالب</button>
   </div>
 </div>
 
@@ -1671,7 +1723,6 @@ function countdown(task) {
 function init() {
   initTheme();
   migrateTasks();
-  migrateDefaultTpls();
   migrateLegacyDeadlines();
   migrateSessAndDl();
   initTgDefaults();
@@ -2102,6 +2153,14 @@ function updateHeader() {
 // ════════════════════════════════════════
 // TASK ACTIONS
 // ════════════════════════════════════════
+function toggleSbGroup(id) {
+  const grp  = document.getElementById(id);
+  const hd   = grp.querySelector('.sb-group-hd');
+  const body = grp.querySelector('.sb-group-body');
+  const open = body.classList.toggle('open');
+  hd.classList.toggle('open', open);
+}
+
 function switchCat(c) {
   curCat=c; curSub='all'; curLegalCat='all';
   if(document.getElementById('search')) document.getElementById('search').value='';
@@ -4720,140 +4779,189 @@ const DEFAULT_TPLS = [
     content:'' },
 ];
 
-let templates   = JSON.parse(localStorage.getItem('tm_tpls') || 'null') || DEFAULT_TPLS.map(t=>({...t}));
-let editTplId   = null;
-let curTplId    = null;
-let tplFilterCat = 'all';
+// القوالب المدمجة ثابتة في الكود — لا تُخزَّن في Firebase/localStorage
+// القوالب المخصصة فقط تُخزَّن
+let customTplTemplates = JSON.parse(localStorage.getItem('tm_tpl_custom') || '[]');
+let savedTplDocs       = JSON.parse(localStorage.getItem('tm_tpl_saved')  || '[]');
+let tplFilterCat       = 'all';
+let ctpFields          = [];
+let editCtpId          = null;
 
-function saveTemplates() {
-  localStorage.setItem('tm_tpls', JSON.stringify(templates));
-  fsSave('templates', templates);
+function saveCustomTpls() {
+  localStorage.setItem('tm_tpl_custom', JSON.stringify(customTplTemplates));
+  fsSave('customTplTemplates', customTplTemplates);
 }
-
-// إصدار القوالب المدمجة — ارفع هذا الرقم عند تغيير DEFAULT_TPLS
-const BUILTIN_TPLS_VERSION = 2;
-
-function migrateDefaultTpls() {
-  const builtinIds = new Set(DEFAULT_TPLS.map(t => t.id));
-  // قالب قديم = له id مدمج ولكن ليس فيه fields
-  const hasOld = templates.some(t => builtinIds.has(t.id) && (!t.fields || !t.fields.length));
-  if (!hasOld) return;
-  // احتفظ فقط بالقوالب المخصصة (التي أضافها المستخدم)
-  const customs = templates.filter(t => !builtinIds.has(t.id));
-  templates = [...DEFAULT_TPLS.map(t => ({...t})), ...customs];
-  localStorage.setItem('tm_tpls', JSON.stringify(templates));
-  fsSave('templates', templates); // حدّث Firebase بالإصدار الجديد
+function saveTplDocs() {
+  localStorage.setItem('tm_tpl_saved', JSON.stringify(savedTplDocs));
+  fsSave('savedTplDocs', savedTplDocs);
 }
-
-function getEffectiveTpl(id) {
-  const builtin = DEFAULT_TPLS.find(t=>t.id===id);
-  if (builtin && builtin.fields) return builtin;
-  return templates.find(t=>t.id===id) || null;
+function allTplTemplates() {
+  return [...DEFAULT_TPLS, ...customTplTemplates];
 }
 
 // ── RENDER ────────────────────────────────
 function renderTemplates() {
-  const usedCats=[...new Set(templates.map(t=>t.category).filter(Boolean))];
-  const filterEl=document.getElementById('tpl-cat-filter');
-  filterEl.innerHTML=`<div class="cf-chip${tplFilterCat==='all'?' on':''}" onclick="setTplFilter('all')">الكل (${templates.length})</div>`
-    +usedCats.map(c=>`<div class="cf-chip${tplFilterCat===c?' on':''}" onclick="setTplFilter('${esc(c)}')">${esc(c)} (${templates.filter(t=>t.category===c).length})</div>`).join('');
+  const all  = allTplTemplates();
+  const cats = [...new Set(all.map(t=>t.category))];
+  const filterEl = document.getElementById('tpl-cat-filter');
+  filterEl.innerHTML = `<div class="cf-chip on" id="tpl-f-all" onclick="filterTplCat(null, this)">الكل (${all.length})</div>`
+    + cats.map(c=>`<div class="cf-chip" onclick="filterTplCat('${esc(c)}',this)">${esc(c)} (${all.filter(t=>t.category===c).length})</div>`).join('');
 
-  let list=tplFilterCat==='all'?[...templates]:templates.filter(t=>t.category===tplFilterCat);
-  const catColors={عقود:'rgba(108,99,255,0.1)',مذكرات:'rgba(43,174,138,0.1)',طلبات:'rgba(224,155,45,0.1)',خطابات:'rgba(224,64,79,0.1)',مخصص:'rgba(0,0,0,0.06)'};
-  const catTx={عقود:'var(--prl)',مذكرات:'var(--ok)',طلبات:'var(--warn)',خطابات:'var(--err)',مخصص:'var(--txm)'};
-  document.getElementById('tpl-grid').innerHTML = list.map(t=>{
-    const eff = getEffectiveTpl(t.id);
-    const hasWiz = eff && eff.fields && eff.fields.length > 0;
-    const preview = eff ? (eff.content||eff.template||'').substring(0,100) : '';
-    const fieldCount = hasWiz ? `<span class="ct-card-fields">${eff.fields.length} سؤال</span>` : '';
-    return `
+  document.getElementById('tpl-grid').innerHTML = all.map(t=>`
     <div class="ct-card">
-      <div class="ct-card-icon">${esc(eff?.icon||'📄')}</div>
-      <div style="flex:1;min-width:0">
+      <div class="ct-card-icon">${t.icon||'📄'}</div>
+      <div>
         <div class="ct-card-title">${esc(t.title)}</div>
-        <div class="ct-card-desc">${esc(eff?.description||preview.substring(0,80))}</div>
+        <div class="ct-card-desc">${esc(t.description||'')}</div>
       </div>
       <div class="ct-card-meta">
-        <div style="display:flex;align-items:center;gap:7px">
-          <span class="tpl-cat-badge" style="background:${catColors[t.category]||'rgba(0,0,0,0.06)'};color:${catTx[t.category]||'var(--txm)'}">${esc(t.category||'')}</span>
-          ${fieldCount}
-        </div>
+        <span class="ct-card-fields">${t.fields.length} حقل</span>
         <div style="display:flex;gap:5px;align-items:center">
-          ${!t.isDefault?`<button class="tbtn" onclick="openTplModal('${t.id}')" title="تعديل">✏️</button>`:''}
-          <button class="tbtn del" onclick="deleteTpl('${t.id}')" title="حذف">🗑️</button>
-          ${hasWiz
-            ? `<button class="btn btn-pr" onclick="startTplWizard('${t.id}')" style="font-size:12px;padding:6px 13px">استخدام ←</button>`
-            : `<button class="btn btn-sm" onclick="openTplView('${t.id}')" style="font-size:12px;padding:6px 13px">عرض</button>`}
+          ${!t.isDefault?`<button class="tbtn" onclick="editCustomTpl('${t.id}')" title="تعديل">✏️</button>`:''}
+          ${!t.isDefault?`<button class="tbtn del" onclick="deleteTpl('${t.id}')" title="حذف">🗑️</button>`:''}
+          <button class="btn btn-pr" onclick="startTplWizard('${t.id}')" style="font-size:12px;padding:6px 13px">استخدام ←</button>
         </div>
+      </div>
+    </div>`).join('');
+
+  renderSavedTplDocs();
+}
+
+function filterTplCat(cat, el) {
+  document.querySelectorAll('#tpl-cat-filter .cf-chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  const list = cat ? allTplTemplates().filter(t=>t.category===cat) : allTplTemplates();
+  document.getElementById('tpl-grid').innerHTML = list.map(t=>`
+    <div class="ct-card">
+      <div class="ct-card-icon">${t.icon||'📄'}</div>
+      <div><div class="ct-card-title">${esc(t.title)}</div><div class="ct-card-desc">${esc(t.description||'')}</div></div>
+      <div class="ct-card-meta">
+        <span class="ct-card-fields">${t.fields.length} حقل</span>
+        <div style="display:flex;gap:5px;align-items:center">
+          ${!t.isDefault?`<button class="tbtn" onclick="editCustomTpl('${t.id}')" title="تعديل">✏️</button>`:''}
+          ${!t.isDefault?`<button class="tbtn del" onclick="deleteTpl('${t.id}')" title="حذف">🗑️</button>`:''}
+          <button class="btn btn-pr" onclick="startTplWizard('${t.id}')" style="font-size:12px;padding:6px 13px">استخدام ←</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function deleteTpl(id) {
+  if (!confirm('حذف هذا القالب؟')) return;
+  customTplTemplates = customTplTemplates.filter(t=>t.id!==id);
+  saveCustomTpls(); renderTemplates();
+  toast('🗑️ تم حذف القالب');
+}
+
+// ── SAVED DOCS ───────────────────────────
+function renderSavedTplDocs() {
+  const el = document.getElementById('saved-tpl-docs-list');
+  if (!el) return;
+  if (!savedTplDocs.length) { el.innerHTML=`<div class="dash-empty">لا توجد مستندات محفوظة بعد</div>`; return; }
+  const list = [...savedTplDocs].sort((a,b)=>b.createdAt.localeCompare(a.createdAt));
+  el.innerHTML = list.map(d=>{
+    const tpl = allTplTemplates().find(t=>t.id===d.templateId);
+    return `<div class="saved-contract-row" onclick="openSavedTplDoc('${d.id}')">
+      <span style="font-size:22px">${tpl?.icon||'📄'}</span>
+      <div style="flex:1;min-width:0">
+        <div class="scr-title">${esc(d.title)}</div>
+        <div class="scr-meta">${tpl?.title||''} • ${new Date(d.createdAt).toLocaleDateString('ar-SA')}</div>
+      </div>
+      <div class="ta" onclick="event.stopPropagation()">
+        <button class="tbtn" onclick="openSavedTplDoc('${d.id}')" title="عرض">👁️</button>
+        <button class="tbtn del" onclick="deleteSavedTplDoc('${d.id}')" title="حذف">🗑️</button>
       </div>
     </div>`;
   }).join('');
 }
 
-function setTplFilter(cat) { tplFilterCat=cat; renderTemplates(); }
+let curSavedTplDocId = null;
+function openSavedTplDoc(id) {
+  const d = savedTplDocs.find(x=>x.id===id); if (!d) return;
+  const tpl = allTplTemplates().find(t=>t.id===d.templateId);
+  curSavedTplDocId = id;
+  document.getElementById('sct-title').textContent   = d.title;
+  document.getElementById('sct-meta').textContent    = `${tpl?.icon||'📄'} ${tpl?.title||''} • ${new Date(d.createdAt).toLocaleDateString('ar-SA')}`;
+  document.getElementById('sct-content').textContent = d.content;
+  document.getElementById('saved-ct-modal').classList.add('show');
+}
+function deleteSavedTplDoc(id) {
+  if (!confirm('حذف هذا المستند؟')) return;
+  savedTplDocs = savedTplDocs.filter(d=>d.id!==id);
+  saveTplDocs(); renderSavedTplDocs(); toast('🗑️ تم الحذف');
+}
 
-// ── MODAL ─────────────────────────────────
-function openTplModal(id) {
-  editTplId=id||null;
-  document.getElementById('tpl-modal-title').textContent=id?'تعديل القالب':'إضافة قالب جديد';
-  document.getElementById('tpl-submit').textContent=id?'💾 حفظ التعديلات':'💾 حفظ القالب';
+// ── CUSTOM TEMPLATE EDITOR ────────────────
+function openCustomTplEditor(id) {
+  editCtpId = id||null;
+  document.getElementById('ctp-modal-title').textContent = id ? 'تعديل القالب' : 'إضافة قالب مخصص';
   if (id) {
-    const t=templates.find(x=>x.id===id); if(!t) return;
-    document.getElementById('tpl-title').value=t.title;
-    document.getElementById('tpl-cat').value=t.category||'مخصص';
-    document.getElementById('tpl-content').value=t.content;
+    const t = customTplTemplates.find(x=>x.id===id); if (!t) return;
+    document.getElementById('ctp-title-inp').value    = t.title;
+    document.getElementById('ctp-cat-inp').value      = t.category||'مخصص';
+    document.getElementById('ctp-template-inp').value = t.template;
+    ctpFields = (t.fields||[]).map(f=>({...f}));
   } else {
-    document.getElementById('tpl-title').value='';
-    document.getElementById('tpl-cat').value='مخصص';
-    document.getElementById('tpl-content').value='';
+    document.getElementById('ctp-title-inp').value    = '';
+    document.getElementById('ctp-template-inp').value = '';
+    ctpFields = [];
   }
-  document.getElementById('tpl-modal').classList.add('show');
+  renderCtpFields();
+  document.getElementById('custom-tpl-modal').classList.add('show');
 }
-function closeTplModal() { document.getElementById('tpl-modal').classList.remove('show'); editTplId=null; }
+function closeCustomTplEditor() { document.getElementById('custom-tpl-modal').classList.remove('show'); editCtpId=null; ctpFields=[]; }
+function editCustomTpl(id) { openCustomTplEditor(id); }
 
-function saveTpl(e) {
-  e.preventDefault();
-  const t={
-    id:        editTplId||Date.now().toString(),
-    title:     document.getElementById('tpl-title').value.trim(),
-    category:  document.getElementById('tpl-cat').value,
-    content:   document.getElementById('tpl-content').value,
-    isDefault: false,
-    createdAt: editTplId?(templates.find(x=>x.id===editTplId)?.createdAt||new Date().toISOString()):new Date().toISOString()
+function renderCtpFields() {
+  document.getElementById('ctp-fields-list').innerHTML = ctpFields.length
+    ? ctpFields.map((f,i)=>`<div class="cct-field-row"><span class="cct-fv">{{${f.id}}}</span><span style="flex:1">${esc(f.label)}</span><span style="font-size:11px;color:var(--txm)">${f.type}</span><button class="db" onclick="removeCtpField(${i})">✕</button></div>`).join('')
+    : '<div style="font-size:12px;color:var(--txm);padding:8px 0">أضف حقولاً لتظهر هنا</div>';
+  const vars = ctpFields.map(f=>`<span class="var-chip" onclick="insertCtpVar('{{${f.id}}}')" title="انقر للإدراج">{{${f.id}}}</span>`).join('');
+  document.getElementById('ctp-vars-row').innerHTML = vars || '<span style="font-size:11px;color:var(--txm)">أضف حقولاً لتظهر المتغيرات هنا</span>';
+}
+function addCtpField() {
+  const lbl = document.getElementById('ctp-f-label').value.trim(); if (!lbl) return;
+  const typ = document.getElementById('ctp-f-type').value;
+  const fid = 'f' + Date.now().toString(36);
+  ctpFields.push({id:fid, label:lbl, hint:'', type:typ});
+  document.getElementById('ctp-f-label').value = '';
+  renderCtpFields();
+}
+function removeCtpField(i) { ctpFields.splice(i,1); renderCtpFields(); }
+function insertCtpVar(v) {
+  const ta = document.getElementById('ctp-template-inp');
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  ta.value = ta.value.slice(0,s) + v + ta.value.slice(e);
+  ta.selectionStart = ta.selectionEnd = s + v.length;
+  ta.focus();
+}
+function saveCustomTpl() {
+  const title = document.getElementById('ctp-title-inp').value.trim();
+  const tmpl  = document.getElementById('ctp-template-inp').value.trim();
+  if (!title) { toast('⚠️ أدخل اسم القالب'); return; }
+  if (!ctpFields.length) { toast('⚠️ أضف حقلاً واحداً على الأقل'); return; }
+  if (!tmpl) { toast('⚠️ أدخل نص القالب'); return; }
+  const t = {
+    id:          editCtpId || Date.now().toString(),
+    icon:        '📝',
+    title,
+    category:    document.getElementById('ctp-cat-inp').value,
+    description: '',
+    fields:      ctpFields.map(f=>({...f})),
+    template:    tmpl,
+    isDefault:   false,
+    createdAt:   editCtpId ? (customTplTemplates.find(x=>x.id===editCtpId)?.createdAt||new Date().toISOString()) : new Date().toISOString()
   };
-  if (editTplId) { const i=templates.findIndex(x=>x.id===editTplId); if(i>=0) templates[i]=t; }
-  else templates.push(t);
-  saveTemplates(); renderTemplates(); closeTplModal();
-  toast(editTplId?'✅ تم تعديل القالب':'✅ تمت إضافة القالب');
+  if (editCtpId) { const i=customTplTemplates.findIndex(x=>x.id===editCtpId); if(i>=0) customTplTemplates[i]=t; }
+  else customTplTemplates.push(t);
+  saveCustomTpls(); renderTemplates(); closeCustomTplEditor();
+  toast(editCtpId ? '✅ تم تعديل القالب' : '✅ تمت إضافة القالب');
 }
 
-function deleteTpl(id) {
-  if (!confirm('هل أنت متأكد من حذف هذا القالب؟')) return;
-  templates = templates.filter(t => t.id !== id);
-  saveTemplates(); renderTemplates();
-  toast('🗑️ تم حذف القالب');
-}
-
-// ── VIEW MODAL ────────────────────────────
-function openTplView(id) {
-  const t=templates.find(x=>x.id===id); if(!t) return;
-  curTplId=id;
-  const catColors={عقود:'rgba(108,99,255,0.1)',مذكرات:'rgba(43,174,138,0.1)',طلبات:'rgba(224,155,45,0.1)',خطابات:'rgba(224,64,79,0.1)',مخصص:'rgba(0,0,0,0.06)'};
-  const catTx={عقود:'var(--prl)',مذكرات:'var(--ok)',طلبات:'var(--warn)',خطابات:'var(--err)',مخصص:'var(--txm)'};
-  document.getElementById('tplv-title').textContent=t.title;
-  const cb=document.getElementById('tplv-cat-badge');
-  cb.textContent=t.category; cb.style.background=catColors[t.category]||'rgba(0,0,0,0.06)'; cb.style.color=catTx[t.category]||'var(--txm)';
-  document.getElementById('tplv-content').textContent=t.content;
-  document.getElementById('tplv-edit-btn').style.display=t.isDefault?'none':'';
-  document.getElementById('tpl-view-modal').classList.add('show');
-}
-function closeTplView() { document.getElementById('tpl-view-modal').classList.remove('show'); curTplId=null; }
-function editCurrentTpl() { closeTplView(); openTplModal(curTplId); }
-async function copyTpl() {
-  const t=templates.find(x=>x.id===curTplId); if(!t) return;
-  try { await navigator.clipboard.writeText(t.content); toast('📋 تم نسخ القالب'); }
-  catch { toast('⚠️ تعذّر النسخ'); }
-}
+// دالة migrateDefaultTpls يُبقى عليها لمنع أخطاء الاستدعاء من init() و fsRefreshUI
+function migrateDefaultTpls() {}
+// دالة saveTemplates يُبقى عليها لمنع أخطاء Firebase callback
+function saveTemplates() {}
 
 // ════════════════════════════════════════
 // CONTRACTS
@@ -5052,7 +5160,7 @@ function startWizard(tplId) {
 }
 
 function startTplWizard(tplId) {
-  const tpl = getEffectiveTpl(tplId);
+  const tpl = allTplTemplates().find(t=>t.id===tplId);
   if (!tpl || !tpl.fields) return;
   wz = { tpl, step:0, answers:{}, direction:1, type:'template' };
   document.getElementById('wz-title').textContent = tpl.title;
@@ -5166,6 +5274,8 @@ function showContractPreview(tpl, answers) {
   document.getElementById('ct-save-form').style.display = 'none';
   document.getElementById('ct-save-title').value = tpl.title + ' — ' + new Date().toLocaleDateString('ar-SA');
   buildClientDropdown('ct-save-client', null);
+  const clientRow = document.getElementById('ct-save-client')?.closest('.fg');
+  if (clientRow) clientRow.style.display = '';
   document.getElementById('ct-preview-modal').classList.add('show');
 }
 
@@ -5177,7 +5287,9 @@ function showTplPreview(tpl, answers) {
   document.getElementById('ctp-content').textContent = content;
   document.getElementById('ct-save-form').style.display = 'none';
   document.getElementById('ct-save-title').value = tpl.title + ' — ' + new Date().toLocaleDateString('ar-SA');
-  buildClientDropdown('ct-save-client', null);
+  // إخفاء حقل الموكل — غير مطلوب للقوالب
+  const clientRow = document.getElementById('ct-save-client')?.closest('.fg');
+  if (clientRow) clientRow.style.display = 'none';
   document.getElementById('ct-preview-modal').classList.add('show');
 }
 
@@ -5208,20 +5320,34 @@ async function copyContractText() {
 
 function confirmSaveContract() {
   if (!currentContractData) return;
-  const title    = document.getElementById('ct-save-title').value.trim() || currentContractData.tpl.title;
-  const clientId = document.getElementById('ct-save-client').value || null;
-  const content  = renderContractText(currentContractData.tpl, currentContractData.answers);
-  savedContracts.push({
-    id:         Date.now().toString(),
-    templateId: currentContractData.tpl.id,
-    title, clientId, content,
-    data:       { ...currentContractData.answers },
-    createdAt:  new Date().toISOString()
-  });
-  saveSavedCts();
-  closeCtPreview();
-  renderSavedContracts();
-  toast('✅ تم حفظ العقد');
+  const title   = document.getElementById('ct-save-title').value.trim() || currentContractData.tpl.title;
+  const content = renderContractText(currentContractData.tpl, currentContractData.answers);
+  if (currentContractData.type === 'template') {
+    savedTplDocs.push({
+      id: Date.now().toString(),
+      templateId: currentContractData.tpl.id,
+      title, content,
+      data: { ...currentContractData.answers },
+      createdAt: new Date().toISOString()
+    });
+    saveTplDocs();
+    closeCtPreview();
+    if (curView === 'templates') renderSavedTplDocs();
+    toast('✅ تم حفظ المستند');
+  } else {
+    const clientId = document.getElementById('ct-save-client').value || null;
+    savedContracts.push({
+      id: Date.now().toString(),
+      templateId: currentContractData.tpl.id,
+      title, clientId, content,
+      data: { ...currentContractData.answers },
+      createdAt: new Date().toISOString()
+    });
+    saveSavedCts();
+    closeCtPreview();
+    renderSavedContracts();
+    toast('✅ تم حفظ العقد');
+  }
 }
 
 // ── SAVED CONTRACTS ───────────────────────
@@ -5685,7 +5811,9 @@ function fsApplyLocal(key, data) {
       case 'deadlines': deadlines = data; localStorage.setItem('tm_deadlines', JSON.stringify(data)); break;
       case 'clients':   clients   = data; localStorage.setItem('tm_clients',   JSON.stringify(data)); break;
       case 'cases':     cases     = data; localStorage.setItem('tm_cases',     JSON.stringify(data)); break;
-      case 'templates':         templates = data; localStorage.setItem('tm_tpls', JSON.stringify(data)); break;
+      case 'templates': break; // مهجور — القوالب المدمجة ثابتة في الكود
+      case 'customTplTemplates': customTplTemplates = data; localStorage.setItem('tm_tpl_custom', JSON.stringify(data)); break;
+      case 'savedTplDocs':       savedTplDocs       = data; localStorage.setItem('tm_tpl_saved',  JSON.stringify(data)); break;
       case 'contractTemplates': customContractTemplates = data; localStorage.setItem('tm_ct_custom',  JSON.stringify(data)); break;
       case 'savedContracts':    savedContracts          = data; localStorage.setItem('tm_saved_cts',  JSON.stringify(data)); break;
     }
@@ -5701,7 +5829,7 @@ function fsRefreshUI(key) {
   if (key === 'sessions'  && curView === 'sessions')  renderSessions();
   if (key === 'deadlines' && curView === 'deadlines') renderDeadlines();
   if (key === 'clients'   && curView === 'clients')   renderClients();
-  if (key === 'templates') { migrateDefaultTpls(); if (curView === 'templates') renderTemplates(); }
+  if ((key === 'customTplTemplates' || key === 'savedTplDocs') && curView === 'templates') renderTemplates();
   if (key === 'contractTemplates' && curView === 'contracts')  renderContracts();
   if (key === 'savedContracts'    && curView === 'contracts')  renderSavedContracts();
   if (curView === 'dashboard') renderDashboard();
