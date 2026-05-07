@@ -95,7 +95,13 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--tx);min-h
 .wz-sidebar-item:hover{background:var(--bg)}
 
 /* ── CONTRACT PREVIEW ── */
-.contract-content{font-family:'Tajawal',sans-serif;font-size:13px;line-height:2.2;direction:rtl;white-space:pre-wrap;background:#fff;color:#000;padding:22px;border-radius:12px;border:1px solid var(--bd);max-height:380px;overflow-y:auto}
+.contract-content{font-family:'Tajawal',sans-serif;font-size:13px;line-height:2.2;direction:rtl;background:#fff;color:#000;padding:22px;border-radius:12px;border:1px solid var(--bd);max-height:380px;overflow-y:auto;word-break:break-word}
+.tpl-toolbar{display:flex;gap:6px;margin-bottom:5px;flex-wrap:wrap;background:var(--bg);border-radius:8px;padding:5px 8px;border:1px solid var(--bd)}
+.tpl-tool-btn{padding:4px 11px;border-radius:6px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font-size:12px;cursor:pointer;transition:all .18s;font-family:'Tajawal',sans-serif;white-space:nowrap}
+.tpl-tool-btn:hover{border-color:var(--pr);color:var(--pr);background:rgba(108,99,255,0.06)}
+.contract-table{border-collapse:collapse;width:100%;margin:10px 0;font-size:13px;direction:rtl}
+.contract-table th,.contract-table td{border:1px solid #888;padding:7px 10px;text-align:right;vertical-align:top}
+.contract-table th{background:rgba(108,99,255,0.09);font-weight:700}
 
 /* ── CUSTOM CONTRACT TEMPLATE BUILDER ── */
 .ctf-item{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--bg);border-radius:8px;margin-bottom:6px;border:1px solid var(--bd)}
@@ -112,7 +118,10 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--tx);min-h
   #print-area,#print-area *{visibility:visible!important}
   #print-area{position:fixed;top:0;left:0;right:0;z-index:99999;background:#fff;padding:20mm 25mm;direction:rtl}
   .pc-title{font-size:18pt;font-weight:800;text-align:center;margin-bottom:8mm;font-family:'Tajawal',Arial,sans-serif}
-  .pc-body{font-size:13pt;line-height:2.3;font-family:'Tajawal',Arial,sans-serif;color:#000;white-space:pre-wrap}
+  .pc-body{font-size:13pt;line-height:2.3;font-family:'Tajawal',Arial,sans-serif;color:#000;word-break:break-word}
+  .contract-table{border-collapse:collapse;width:100%;margin:10px 0}
+  .contract-table th,.contract-table td{border:1px solid #555;padding:6px 10px;text-align:right}
+  .contract-table th{background:#e8e8f0!important;font-weight:700}
 }
 
 /* ── MORNING GREETING ── */
@@ -1270,7 +1279,10 @@ textarea.fc{resize:vertical;min-height:65px}
     <div class="fg">
       <label class="fl">نص القالب (استخدم المتغيرات للإدراج)</label>
       <div class="var-chips" id="ctp-vars-row"><span style="font-size:11px;color:var(--txm)">أضف حقولاً لتظهر المتغيرات هنا</span></div>
-      <textarea class="fc" id="ctp-template-inp" style="min-height:160px;direction:rtl;font-size:13px;line-height:1.9" placeholder="اكتب نص القالب وضع المتغيرات بالشكل {{variable_key}}..."></textarea>
+      <div class="tpl-toolbar">
+        <button type="button" class="tpl-tool-btn" onclick="insertTable('ctp-template-inp')">🗃️ إدراج جدول</button>
+      </div>
+      <textarea class="fc" id="ctp-template-inp" style="min-height:160px;direction:rtl;font-size:13px;line-height:1.9;font-family:'Tajawal',monospace" placeholder="اكتب نص القالب وضع المتغيرات بالشكل {{variable_key}}..." onpaste="handleEditorPaste(event,'ctp-template-inp')"></textarea>
     </div>
     <button class="bs" onclick="saveCustomTpl()">💾 حفظ القالب</button>
   </div>
@@ -1359,7 +1371,10 @@ textarea.fc{resize:vertical;min-height:65px}
     <div class="fg">
       <label class="fl">نص القالب (استخدم المتغيرات للإدراج)</label>
       <div class="var-chips" id="cct-vars-row"><span style="font-size:11px;color:var(--txm)">أضف حقولاً لتظهر المتغيرات هنا</span></div>
-      <textarea class="fc" id="cct-template" style="min-height:160px;direction:rtl;font-size:13px;line-height:1.9" placeholder="اكتب نص العقد وضع المتغيرات بالشكل {{variable_key}}..."></textarea>
+      <div class="tpl-toolbar">
+        <button type="button" class="tpl-tool-btn" onclick="insertTable('cct-template')">🗃️ إدراج جدول</button>
+      </div>
+      <textarea class="fc" id="cct-template" style="min-height:160px;direction:rtl;font-size:13px;line-height:1.9;font-family:'Tajawal',monospace" placeholder="اكتب نص العقد وضع المتغيرات بالشكل {{variable_key}}..." onpaste="handleEditorPaste(event,'cct-template')"></textarea>
     </div>
     <button class="bs" onclick="saveCctTemplate()">💾 حفظ القالب</button>
   </div>
@@ -4884,7 +4899,7 @@ function openSavedTplDoc(id) {
   curSavedTplDocId = id;
   document.getElementById('sct-title').textContent   = d.title;
   document.getElementById('sct-meta').textContent    = `${tpl?.icon||'📄'} ${tpl?.title||''} • ${new Date(d.createdAt).toLocaleDateString('ar-SA')}`;
-  document.getElementById('sct-content').textContent = d.content;
+  document.getElementById('sct-content').innerHTML = renderWithTables(d.content);
   document.getElementById('saved-ct-modal').classList.add('show');
 }
 function deleteSavedTplDoc(id) {
@@ -5254,6 +5269,134 @@ function wzBack() {
   renderWizardStep();
 }
 
+// ── TABLE INSERTION ───────────────────────
+function insertTable(textareaId) {
+  const colsStr = prompt('عدد الأعمدة:', '3');
+  if (colsStr === null) return;
+  const cols = parseInt(colsStr);
+  if (!cols || cols < 1 || cols > 20) { toast('⚠️ عدد أعمدة غير صالح (1-20)'); return; }
+  const rowsStr = prompt('عدد الصفوف (بدون رأس الجدول):', '3');
+  if (rowsStr === null) return;
+  const rows = parseInt(rowsStr);
+  if (!rows || rows < 1 || rows > 50) { toast('⚠️ عدد صفوف غير صالح (1-50)'); return; }
+
+  const header  = '|' + Array.from({length:cols},(_,i)=>' عنوان '+(i+1)+' ').join('|') + '|';
+  const sep     = '|' + Array(cols).fill('-------').join('|') + '|';
+  const dataRow = '|' + Array(cols).fill('         ').join('|') + '|';
+  const table   = '\n' + header + '\n' + sep + '\n' + Array(rows).fill(dataRow).join('\n') + '\n';
+
+  const ta = document.getElementById(textareaId); if (!ta) return;
+  const s = ta.selectionStart;
+  ta.value = ta.value.slice(0, s) + table + ta.value.slice(ta.selectionEnd);
+  ta.selectionStart = ta.selectionEnd = s + table.length;
+  ta.focus();
+  toast('✅ تم إدراج الجدول');
+}
+
+// ── PASTE TABLE FROM EXCEL / WORD ─────────
+function handleEditorPaste(e, taId) {
+  const cd = e.clipboardData || window.clipboardData;
+  if (!cd) return;
+
+  // أولاً: جرّب HTML (Word / Excel / صفحات الويب)
+  const html = cd.getData('text/html');
+  if (html && /<table[\s>]/i.test(html)) {
+    const md = _htmlTableToMd(html);
+    if (md) { e.preventDefault(); _insertAtCursor(taId, md); toast('✅ تم لصق الجدول'); return; }
+  }
+
+  // ثانياً: جرّب النص بالتبويبات (Excel plain text)
+  const plain = cd.getData('text/plain');
+  if (plain && _isTabular(plain)) {
+    const md = _tsvToMd(plain);
+    if (md) { e.preventDefault(); _insertAtCursor(taId, md); toast('✅ تم لصق الجدول'); return; }
+  }
+  // وإلا: لصق عادي
+}
+
+function _htmlTableToMd(html) {
+  try {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const table = doc.querySelector('table');
+    if (!table) return null;
+    const rows = Array.from(table.querySelectorAll('tr')).map(tr =>
+      Array.from(tr.querySelectorAll('th,td')).map(c =>
+        c.textContent.trim().replace(/\s*\n\s*/g,' ').replace(/\|/g,'｜') || ' '
+      )
+    ).filter(r => r.length);
+    return _buildMdTable(rows);
+  } catch(e) { return null; }
+}
+
+function _tsvToMd(text) {
+  const rows = text.trim().split(/\r?\n/).map(l =>
+    l.split('\t').map(c => c.trim().replace(/\|/g,'｜') || ' ')
+  ).filter(r => r.length);
+  return _buildMdTable(rows);
+}
+
+function _buildMdTable(rows) {
+  if (!rows.length) return null;
+  const cols = Math.max(...rows.map(r => r.length));
+  const norm = rows.map(r => { const a=[...r]; while(a.length<cols) a.push(' '); return a; });
+  const header = '|' + norm[0].join('|') + '|';
+  const sep    = '|' + Array(cols).fill('-------').join('|') + '|';
+  const body   = norm.slice(1).map(r=>'|'+r.join('|')+'|').join('\n');
+  return '\n' + header + '\n' + sep + (body ? '\n' + body : '') + '\n';
+}
+
+function _isTabular(text) {
+  const lines = text.trim().split(/\r?\n/);
+  // جدول = سطر واحد على الأقل يحتوي على تبويب
+  return lines.length >= 1 && lines[0].includes('\t');
+}
+
+function _insertAtCursor(taId, text) {
+  const ta = document.getElementById(taId); if (!ta) return;
+  const s = ta.selectionStart;
+  ta.value = ta.value.slice(0,s) + text + ta.value.slice(ta.selectionEnd);
+  ta.selectionStart = ta.selectionEnd = s + text.length;
+  ta.focus();
+}
+
+// ── RENDER TEXT + TABLES → HTML ───────────
+function buildHtmlTable(lines) {
+  const isSep = l => /^\|[\s\-|]+\|$/.test(l.trim());
+  const data  = lines.filter(l => !isSep(l));
+  if (!data.length) return '';
+  const splitCells = l => l.trim().split('|').slice(1, -1);
+  let html = '<table class="contract-table"><thead><tr>'
+    + splitCells(data[0]).map(h=>`<th>${esc(h.trim())}</th>`).join('')
+    + '</tr></thead><tbody>';
+  for (let i = 1; i < data.length; i++) {
+    html += '<tr>' + splitCells(data[i]).map(c=>`<td>${esc(c.trim())}</td>`).join('') + '</tr>';
+  }
+  return html + '</tbody></table>';
+}
+
+function renderWithTables(text) {
+  if (!text) return '';
+  const lines = text.split('\n');
+  let html = '', i = 0;
+  while (i < lines.length) {
+    const l = lines[i];
+    const t = l.trim();
+    if (t.startsWith('|') && t.endsWith('|') && t.length > 2) {
+      const block = [];
+      while (i < lines.length) {
+        const tt = lines[i].trim();
+        if (tt.startsWith('|') && tt.endsWith('|') && tt.length > 2) { block.push(lines[i]); i++; }
+        else break;
+      }
+      html += buildHtmlTable(block);
+    } else {
+      html += esc(l) + '<br>';
+      i++;
+    }
+  }
+  return html;
+}
+
 // ── CONTRACT PREVIEW ──────────────────────
 let currentContractData = null;
 
@@ -5272,7 +5415,7 @@ function showContractPreview(tpl, answers) {
   const content = renderContractText(tpl, answers);
   document.getElementById('ctp-title').textContent = 'العقد النهائي';
   document.getElementById('ctp-meta').textContent  = `${tpl.icon||'📄'} ${tpl.title}  •  ${new Date().toLocaleDateString('ar-SA')}`;
-  document.getElementById('ctp-content').textContent = content;
+  document.getElementById('ctp-content').innerHTML = renderWithTables(content);
   document.getElementById('ct-save-form').style.display = 'none';
   document.getElementById('ct-save-title').value = tpl.title + ' — ' + new Date().toLocaleDateString('ar-SA');
   buildClientDropdown('ct-save-client', null);
@@ -5286,7 +5429,7 @@ function showTplPreview(tpl, answers) {
   const content = renderContractText(tpl, answers);
   document.getElementById('ctp-title').textContent = 'المستند المُعبَّأ';
   document.getElementById('ctp-meta').textContent  = `${tpl.icon||'📄'} ${tpl.title}  •  ${new Date().toLocaleDateString('ar-SA')}`;
-  document.getElementById('ctp-content').textContent = content;
+  document.getElementById('ctp-content').innerHTML = renderWithTables(content);
   document.getElementById('ct-save-form').style.display = 'none';
   document.getElementById('ct-save-title').value = tpl.title + ' — ' + new Date().toLocaleDateString('ar-SA');
   // إخفاء حقل الموكل — غير مطلوب للقوالب
@@ -5306,7 +5449,7 @@ function printContract() {
   if (!currentContractData) return;
   const content = renderContractText(currentContractData.tpl, currentContractData.answers);
   document.getElementById('pa-title').textContent = currentContractData.tpl.title;
-  document.getElementById('pa-body').textContent  = content;
+  document.getElementById('pa-body').innerHTML  = renderWithTables(content);
   document.getElementById('print-area').style.display = 'block';
   window.print();
   document.getElementById('print-area').style.display = 'none';
@@ -5382,14 +5525,14 @@ function openSavedContract(id) {
   curSavedCtId = id;
   document.getElementById('sct-title').textContent   = c.title;
   document.getElementById('sct-meta').textContent    = `${tpl?.icon||'📄'} ${tpl?.title||''} • ${new Date(c.createdAt).toLocaleDateString('ar-SA')}`;
-  document.getElementById('sct-content').textContent = c.content;
+  document.getElementById('sct-content').innerHTML = renderWithTables(c.content);
   document.getElementById('saved-ct-modal').classList.add('show');
 }
 
 function printSavedContract() {
   const c = savedContracts.find(x=>x.id===curSavedCtId); if(!c) return;
   document.getElementById('pa-title').textContent = c.title;
-  document.getElementById('pa-body').textContent  = c.content;
+  document.getElementById('pa-body').innerHTML  = renderWithTables(c.content);
   document.getElementById('print-area').style.display = 'block';
   window.print();
   document.getElementById('print-area').style.display = 'none';
